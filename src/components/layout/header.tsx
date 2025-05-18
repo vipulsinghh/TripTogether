@@ -1,6 +1,7 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Plane } from 'lucide-react';
+import { Plane, Compass } from 'lucide-react';
 
 export default function Header() {
   return (
@@ -10,9 +11,11 @@ export default function Header() {
           <Plane className="h-7 w-7 text-primary" />
           <span className="text-2xl font-bold text-gradient">RoamMate</span>
         </Link>
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-1 md:gap-2">
           <Button variant="ghost" asChild>
-            <Link href="/">Home</Link>
+            <Link href="/discover">
+              <Compass className="md:mr-2 h-4 w-4" /> <span className="hidden md:inline">Discover</span>
+            </Link>
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/profile">Profile</Link>
@@ -23,14 +26,19 @@ export default function Header() {
           <Button variant="ghost" asChild>
             <Link href="/create-trip">Create Trip</Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link href="/auth/sign-in">Sign In</Link>
-          </Button>
-          <Button className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground" asChild>
-            <Link href="/auth/sign-up">Sign Up</Link>
-          </Button>
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/auth/sign-in">Sign In</Link>
+            </Button>
+            <Button className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground" asChild>
+              <Link href="/auth/sign-up">Sign Up</Link>
+            </Button>
+          </div>
+          {/* Add a mobile menu trigger here if needed in the future */}
         </nav>
       </div>
     </header>
   );
 }
+
+    

@@ -1,129 +1,179 @@
-"use client";
 
-import { useState, useEffect } from 'react';
-import TripCard, { type TripCardProps } from '@/components/core/trip-card';
 import { Button } from '@/components/ui/button';
-import { Heart, X, RotateCcw } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Briefcase, Users, Compass, Zap, HeartHandshake, Lightbulb } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const initialTrips: TripCardProps[] = [
-  {
-    id: '1',
-    title: 'Bali Adventure Week',
-    destination: 'Bali, Indonesia',
-    dates: 'Oct 10 - Oct 17, 2024',
-    description: 'Explore volcanoes, surf, and find your zen in beautiful Bali.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'bali beach',
-    memberCount: 5,
-    budget: '$1000 - $1500',
-  },
-  {
-    id: '2',
-    title: 'Tokyo Tech & Tradition',
-    destination: 'Tokyo, Japan',
-    dates: 'Nov 5 - Nov 12, 2024',
-    description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'tokyo street',
-    memberCount: 3,
-    budget: '$2000 - $2500',
-  },
-  {
-    id: '3',
-    title: 'Parisian Charm Getaway',
-    destination: 'Paris, France',
-    dates: 'Dec 1 - Dec 7, 2024',
-    description: 'Indulge in art, cuisine, and romance in the City of Lights.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'paris eiffel',
-    memberCount: 2,
-    budget: '$1800 - $2200',
-  },
-];
-
-export default function HomePage() {
-  const [trips, setTrips] = useState<TripCardProps[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [key, setKey] = useState(0); // For re-triggering animation
-
-  useEffect(() => {
-    // Simulate fetching data
-    setTrips(initialTrips);
-  }, []);
-  
-  const handleSwipe = (action: 'like' | 'pass') => {
-    console.log(`Trip ${trips[currentIndex]?.id} ${action}ed`);
-    if (currentIndex < trips.length -1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      // Reached end of trips, maybe show a message or reload
-      console.log("No more trips!");
-    }
-    setKey(prev => prev + 1); // Change key to re-mount TripCard for animation
-  };
-
-  const handleReset = () => {
-    setTrips(initialTrips);
-    setCurrentIndex(0);
-    setKey(prev => prev + 1);
-  };
-
-  if (!trips.length || currentIndex >= trips.length) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)]">
-        <h1 className="text-3xl font-semibold mb-4">No More Trips!</h1>
-        <p className="text-muted-foreground mb-6">You've swiped through all available opportunities.</p>
-        <Button onClick={handleReset} variant="outline">
-          <RotateCcw className="mr-2 h-4 w-4" />
-          Reload Trips
-        </Button>
-      </div>
-    );
-  }
-
-  const currentTrip = trips[currentIndex];
-
+export default function LandingPage() {
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-4xl font-bold mb-8 text-gradient">Discover Your Next Adventure</h1>
-      <div className="relative w-full max-w-md h-[600px]">
-        <AnimatePresence>
-          {currentTrip && (
-             <motion.div
-              key={key} // Use key to force re-render for animation
-              className="absolute w-full h-full"
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -50, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-            >
-              <TripCard {...currentTrip} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+    <div className="flex flex-col min-h-screen">
+      {/* Hero Section */}
+      <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-background">
+        <div className="absolute inset-0 opacity-30">
+          <Image
+            src="https://placehold.co/1920x1080.png"
+            alt="Travel collage"
+            layout="fill"
+            objectFit="cover"
+            className="opacity-50"
+            data-ai-hint="travel collage"
+          />
+        </div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+            <span className="text-gradient">RoamMate:</span> Find Your Travel Tribe
+          </h1>
+          <p className="text-xl md:text-2xl text-foreground/80 mb-10 max-w-3xl mx-auto">
+            Connect with like-minded adventurers, discover unique trips, and plan your next unforgettable journey together.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Button size="lg" asChild className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground hover:opacity-90 transition-opacity">
+              <Link href="/auth/sign-up">Get Started Free</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/auth/sign-in">Sign In</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
 
-      <div className="flex gap-6 mt-8">
-        <Button
-          variant="destructive"
-          size="lg"
-          className="rounded-full p-4 h-16 w-16 shadow-lg"
-          onClick={() => handleSwipe('pass')}
-          aria-label="Pass"
-        >
-          <X className="h-8 w-8" />
-        </Button>
-        <Button
-          variant="default"
-          size="lg"
-          className="rounded-full p-4 h-16 w-16 shadow-lg bg-green-500 hover:bg-green-600"
-          onClick={() => handleSwipe('like')}
-          aria-label="Like"
-        >
-          <Heart className="h-8 w-8" />
-        </Button>
-      </div>
+      {/* About Section */}
+      <section id="about" className="py-16 md:py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">What is RoamMate?</h2>
+            <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
+              RoamMate is more than just a travel app. It's a community for passionate explorers looking to share experiences, discover new destinations, and form lasting connections on the road.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <Image
+                src="https://placehold.co/600x400.png"
+                alt="Group of friends traveling"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-xl"
+                data-ai-hint="friends travel"
+              />
+            </div>
+            <div className="space-y-4 text-foreground/90">
+              <p>
+                Ever dreamt of a trip but couldn't find the right companions? Or perhaps you're an avid traveler seeking new adventures with new friends? RoamMate bridges that gap.
+              </p>
+              <p>
+                We leverage smart matching and AI-powered suggestions to help you find or create travel groups that perfectly align with your interests, budget, and travel style.
+              </p>
+              <p>
+                From weekend getaways to epic backpacking odysseys, RoamMate makes group travel seamless, fun, and accessible.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-16 md:py-24 bg-secondary/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">Why Choose RoamMate?</h2>
+            <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
+              Discover features designed to make your travel planning and experience extraordinary.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <Users className="h-10 w-10 text-primary mb-4" />,
+                title: 'Find Your Crew',
+                description: 'Connect with travelers who share your passions and travel style. Swipe, match, and chat!',
+              },
+              {
+                icon: <Compass className="h-10 w-10 text-primary mb-4" />,
+                title: 'Discover Trips',
+                description: 'Explore a variety of user-created trips or get inspired to create your own adventure.',
+              },
+              {
+                icon: <Lightbulb className="h-10 w-10 text-primary mb-4" />,
+                title: 'AI-Powered Suggestions',
+                description: 'Get smart recommendations for activities, icebreakers, and even trip ideas based on your group\'s profile.',
+              },
+              {
+                icon: <Briefcase className="h-10 w-10 text-primary mb-4" />,
+                title: 'Easy Trip Planning',
+                description: 'Organize itineraries, manage expenses, and communicate effectively within your travel group.',
+              },
+              {
+                icon: <HeartHandshake className="h-10 w-10 text-primary mb-4" />,
+                title: 'Build Connections',
+                description: 'More than just travel partners, find friends for life through shared adventures.',
+              },
+              {
+                icon: <Zap className="h-10 w-10 text-primary mb-4" />,
+                title: 'Profile Customization',
+                description: 'Showcase your travel history, interests, and preferences to find the best matches.',
+              },
+            ].map((feature) => (
+              <Card key={feature.title} className="text-center shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-center">{feature.icon}</div>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-foreground/80">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-16 md:py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">Get Started in 3 Easy Steps</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div className="p-6">
+              <div className="flex justify-center items-center mx-auto mb-6 h-20 w-20 rounded-full bg-primary/10 text-primary text-3xl font-bold">1</div>
+              <h3 className="text-xl font-semibold mb-2">Create Your Profile</h3>
+              <p className="text-foreground/70">Sign up and tell us about your travel style, interests, and what you're looking for.</p>
+            </div>
+            <div className="p-6">
+              <div className="flex justify-center items-center mx-auto mb-6 h-20 w-20 rounded-full bg-primary/10 text-primary text-3xl font-bold">2</div>
+              <h3 className="text-xl font-semibold mb-2">Discover & Connect</h3>
+              <p className="text-foreground/70">Swipe through potential trips and travel mates. Join existing groups or create your own.</p>
+            </div>
+            <div className="p-6">
+               <div className="flex justify-center items-center mx-auto mb-6 h-20 w-20 rounded-full bg-primary/10 text-primary text-3xl font-bold">3</div>
+              <h3 className="text-xl font-semibold mb-2">Plan & Adventure</h3>
+              <p className="text-foreground/70">Collaborate with your group, plan your itinerary, and embark on an unforgettable journey!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 md:py-24 bg-gradient-to-tr from-primary/10 via-background to-background">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Your Adventure?</h2>
+          <p className="text-lg text-foreground/80 mb-8 max-w-xl mx-auto">
+            Join the RoamMate community today and never travel solo (unless you want to!).
+          </p>
+          <div className="flex justify-center gap-4">
+             <Button size="lg" asChild className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground hover:opacity-90 transition-opacity">
+              <Link href="/auth/sign-up">Sign Up Now</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/auth/sign-in">Already a Member? Sign In</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
+
+    
