@@ -2,15 +2,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { Trip } from '@/types'; // Use the main Trip type
+import type { Trip } from '@/types'; 
 import TripCard from '@/components/core/trip-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag, Users as UsersIcon, Briefcase, ThumbsUp, Zap, DollarSign } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag, Users as UsersIcon, Briefcase, ThumbsUp, Zap, DollarSign, UserCog } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from 'next/link';
-import { categoriesList as appCategories } from '@/types'; // Import categories list
+import { categoriesList as appCategories } from '@/types'; 
 
 const initialTrips: Trip[] = [
   {
@@ -120,7 +120,6 @@ const initialTrips: Trip[] = [
   },
 ];
 
-// Match Lucide icons to category IDs
 const categoryIcons: { [key: string]: React.ElementType } = {
   'Mountains': Mountain,
   'Beach': Palmtree,
@@ -132,10 +131,10 @@ const categoryIcons: { [key: string]: React.ElementType } = {
   'City Break': Building2,
   'Adventure': Bike,
   'Road Trip': Navigation,
-  'Wildlife': Briefcase, // Placeholder, consider a better icon like PawPrint if available or custom SVG
-  'Wellness': ThumbsUp, // Placeholder, consider Spa icon
-  'Foodie': Zap, // Placeholder, consider Utensils icon
-  'Nightlife': Zap, // Placeholder, consider GlassWater or similar
+  'Wildlife': Briefcase, 
+  'Wellness': ThumbsUp, 
+  'Foodie': Zap, 
+  'Nightlife': Zap, 
   'Budget': DollarSign, 
 };
 
@@ -144,24 +143,24 @@ export default function DiscoverPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const router = useRouter();
+  const [profilePreferencesSet, setProfilePreferencesSet] = useState<boolean | null>(null);
+
 
   useEffect(() => {
-    // Profile completion check
     if (typeof window !== 'undefined') {
-      const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
-      if (signedIn && !preferencesSet) {
-        router.replace('/profile'); // Redirect if profile not complete
-        return;
-      }
+      setProfilePreferencesSet(preferencesSet);
+      
+      const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       if (!signedIn) {
-        router.replace('/'); // Redirect to landing if not signed in
+        // If not signed in, clear local state and potentially redirect (though header might handle this too)
+        setTrips([]); 
+        // router.replace('/'); // Or let header handle it
         return;
       }
     }
-    setTrips(initialTrips); // Load initial trips if profile complete
-  }, [router]);
+    setTrips(initialTrips); // Load initial trips if profile complete or not relevant for this page logic
+  }, []);
   
   const handleResetFilters = () => {
     setSearchTerm('');
@@ -170,7 +169,7 @@ export default function DiscoverPage() {
 
   const handleCategorySelect = (categoryName: string) => {
     if (selectedCategory === categoryName) {
-      setSelectedCategory(null); // Deselect if already selected
+      setSelectedCategory(null); 
     } else {
       setSelectedCategory(categoryName);
     }
@@ -186,8 +185,33 @@ export default function DiscoverPage() {
     return matchesSearch && matchesCategory;
   });
 
+  if (profilePreferencesSet === null) {
+    // Still loading preference status
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <RotateCcw className="h-10 w-10 text-primary animate-spin mr-2" /> 
+        <p className="text-xl">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col space-y-8">
+      {!profilePreferencesSet && (
+        <Alert variant="default" className="border-primary bg-primary/5">
+          <UserCog className="h-5 w-5 text-primary" />
+          <AlertTitle className="font-semibold text-primary">Complete Your Profile!</AlertTitle>
+          <AlertDescription className="text-foreground/80">
+            To get the best travel recommendations and connect with groups tailored to your interests, please complete your profile preferences.
+          </AlertDescription>
+          <div className="mt-4">
+            <Button asChild size="sm">
+              <Link href="/profile">Go to Profile</Link>
+            </Button>
+          </div>
+        </Alert>
+      )}
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
@@ -206,7 +230,7 @@ export default function DiscoverPage() {
         <ScrollArea className="w-full whitespace-nowrap rounded-md">
           <div className="flex space-x-4 pb-4">
             {appCategories.map((category) => {
-              const IconComponent = categoryIcons[category.id] || Tag; // Fallback icon
+              const IconComponent = categoryIcons[category.id] || Tag; 
               return (
                 <Button 
                   key={category.id} 

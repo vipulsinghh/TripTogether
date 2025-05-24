@@ -21,10 +21,8 @@ export default function Header() {
       setIsSignedIn(signedInStatus);
       setProfilePreferencesSet(preferencesSetStatus);
 
-      const mainAppRoutes = ['/discover', '/groups', '/create-trip', '/chat'];
-      if (signedInStatus && !preferencesSetStatus && mainAppRoutes.some(route => pathname.startsWith(route)) && pathname !== '/profile') {
-        router.replace('/profile');
-      }
+      // Removed automatic redirect to /profile from here. 
+      // The /discover page will now show a prompt.
     }
   };
 
@@ -32,7 +30,7 @@ export default function Header() {
     setIsClient(true);
     updateAuthState();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname]); // Keep pathname to re-check on route change
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -40,14 +38,15 @@ export default function Header() {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('focus', handleStorageChange);
+    // Also re-check on window focus in case localStorage was changed in another tab
+    window.addEventListener('focus', handleStorageChange); 
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleStorageChange);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // Empty dependency array ensures this runs once on mount and cleans up on unmount
 
 
   const handleSignOut = () => {
@@ -60,12 +59,10 @@ export default function Header() {
     router.push('/');
   };
 
-  const canAccessMainApp = isSignedIn && profilePreferencesSet;
+  const canAccessMainAppFeatures = isSignedIn && profilePreferencesSet; // Used for features like chat/notifications
 
   const baseHeaderClasses = "sticky top-0 z-50 w-full border-b backdrop-blur";
-  // Matches server-rendered HTML from error log
   const serverHeaderClasses = `${baseHeaderClasses} bg-background/95 supports-[backdrop-filter]:bg-background/60`;
-  // Desired client-side class
   const clientHeaderClasses = `${baseHeaderClasses} bg-secondary/95 supports-[backdrop-filter]:bg-secondary/60`;
 
   return (
@@ -76,7 +73,8 @@ export default function Header() {
           <span className="text-2xl font-bold text-gradient">RoamMate</span>
         </Link>
         <nav className="flex items-center gap-1 md:gap-2">
-          {isClient && canAccessMainApp && (
+          {/* Discover link is available if signed in, regardless of profile completion */}
+          {isClient && isSignedIn && (
             <Button variant="ghost" asChild>
               <Link href="/discover">
                 <Compass className="md:mr-2 h-4 w-4" /> <span className="hidden md:inline font-bold text-gradient">Discover</span>
@@ -96,7 +94,8 @@ export default function Header() {
             )
           )}
 
-          {isClient && canAccessMainApp && (
+          {/* Groups and Create Trip are available if signed in, prompt for profile completion will be on /discover */}
+          {isClient && isSignedIn && (
             <>
               <Button variant="ghost" asChild>
                 <Link href="/groups"><Users className="md:mr-2 h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Groups</span></Link>
@@ -104,6 +103,12 @@ export default function Header() {
               <Button variant="ghost" asChild>
                 <Link href="/create-trip"><Edit className="md:mr-2 h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Create Trip</span></Link>
               </Button>
+            </>
+          )}
+          
+          {/* Messages and Notifications accessible if profile is complete */}
+          {isClient && canAccessMainAppFeatures && (
+             <>
               <Button variant="ghost" asChild size="icon" title="Messages">
                 <Link href="/messages">
                   <MessageSquare />
@@ -118,6 +123,7 @@ export default function Header() {
               </Button>
             </>
           )}
+
 
           {isClient && !isSignedIn && (
             <div className="flex items-center gap-2">
@@ -135,7 +141,7 @@ export default function Header() {
               <span className="hidden md:inline font-bold text-gradient">Sign Out</span>
             </Button>
           )}
-          {!isClient && ( // Skeleton for SSR nav items
+          {!isClient && ( 
             <div className="flex items-center gap-2">
                 <div className="h-9 w-20 bg-muted/50 rounded-md animate-pulse"></div>
                 <div className="h-9 w-24 bg-muted/50 rounded-md animate-pulse"></div>
@@ -146,5 +152,3 @@ export default function Header() {
     </header>
   );
 }
-
-    

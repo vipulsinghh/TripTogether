@@ -42,7 +42,6 @@ export default function SignInForm() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('isUserSignedIn', 'true');
       // Check if profile preferences were set, if not, initialize to false.
-      // This encourages completion after first sign-in.
       if (!localStorage.getItem('userProfilePreferencesSet')) {
         localStorage.setItem('userProfilePreferencesSet', 'false');
       }
@@ -53,7 +52,7 @@ export default function SignInForm() {
       description: "Welcome back to RoamMate.",
     });
     
-    router.push('/profile'); // Redirect to profile page first for completion check
+    router.push('/discover'); // Redirect to discover page
     // form.reset(); // Optionally reset form
   }
 

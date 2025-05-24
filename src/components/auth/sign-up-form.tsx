@@ -48,10 +48,10 @@ export default function SignUpForm() {
     
     toast({
       title: "Account Created!",
-      description: "Welcome to RoamMate! Please complete your profile.",
+      description: "Welcome to RoamMate! Please complete your profile for the best experience.",
     });
     
-    router.push('/profile'); // Redirect to profile page first
+    router.push('/discover'); // Redirect to discover page
     // form.reset(); // Optionally reset form
   }
 
