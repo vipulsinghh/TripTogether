@@ -7,8 +7,7 @@ import TripCard from '@/components/core/trip-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, Info, X, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag } from 'lucide-react';
 import Link from 'next/link';
 
 const categoriesList = [
@@ -92,28 +91,15 @@ export default function DiscoverPage() {
   const [trips, setTrips] = useState<TripCardProps[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showPreferencesAlert, setShowPreferencesAlert] = useState(true);
 
   useEffect(() => {
     setTrips(initialTrips);
-    const dismissed = localStorage.getItem('preferencesAlertDismissed');
-    if (dismissed) {
-      setShowPreferencesAlert(false);
-    }
   }, []);
   
-  const handleReset = () => {
-    setTrips(initialTrips);
+  const handleResetFilters = () => {
     setSearchTerm('');
     setSelectedCategory(null);
-    // setShowPreferencesAlert(true); // Keep preferences alert dismissed if user dismissed it
-    // localStorage.removeItem('preferencesAlertDismissed');
   };
-
-  const dismissPreferencesAlert = () => {
-    setShowPreferencesAlert(false);
-    localStorage.setItem('preferencesAlertDismissed', 'true');
-  }
 
   const handleCategorySelect = (categoryName: string) => {
     if (selectedCategory === categoryName) {
@@ -135,24 +121,6 @@ export default function DiscoverPage() {
 
   return (
     <div className="flex flex-col space-y-8">
-      {showPreferencesAlert && (
-         <Alert className="shadow-md">
-          <Info className="h-4 w-4" />
-          <AlertTitle className="font-semibold">Personalize Your Experience!</AlertTitle>
-          <AlertDescription className="flex justify-between items-center">
-            <div>
-              Set your travel preferences to get better matches and suggestions.
-              <Button variant="link" asChild className="p-0 ml-1 text-primary">
-                <Link href="/profile">Go to Profile</Link>
-              </Button>
-            </div>
-            <Button variant="ghost" size="sm" onClick={dismissPreferencesAlert}>
-              <X className="h-4 w-4" />
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
@@ -192,7 +160,7 @@ export default function DiscoverPage() {
             {selectedCategory ? `${selectedCategory} Trips` : "Recommended Trips"}
           </h2>
            {(searchTerm || selectedCategory) && (
-            <Button onClick={handleReset} variant="outline" size="sm">
+            <Button onClick={handleResetFilters} variant="outline" size="sm">
               <RotateCcw className="mr-2 h-4 w-4" />
               Clear Filters
             </Button>
@@ -207,7 +175,7 @@ export default function DiscoverPage() {
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[200px] text-center py-10">
             <p className="text-xl text-muted-foreground mb-4">No trips match your current search or filters.</p>
-            <Button onClick={handleReset} variant="outline">
+            <Button onClick={handleResetFilters} variant="outline">
               <RotateCcw className="mr-2 h-4 w-4" />
               Clear Filters & Reload All
             </Button>

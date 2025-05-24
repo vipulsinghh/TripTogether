@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,7 +18,7 @@ body {
     --popover: 0 0% 100%;
     --popover-foreground: 227 30% 25%;
 
-    --primary: 227 60% 35%; /* Dark Blue from gradient: #1a2a6c, adjusted for better visibility */
+    --primary: 227 65% 40%; /* Dark Blue from gradient: #1a2a6c, adjusted for more vibrancy */
     --primary-foreground: 0 0% 98%; /* Whiteish */
 
     --secondary: 220 15% 92%; /* Lighter cool gray */
@@ -26,8 +27,8 @@ body {
     --muted: 220 15% 88%;
     --muted-foreground: 227 20% 50%;
 
-    --accent: 40 97% 61%; /* Golden Yellow from gradient: #fdbb2d */
-    --accent-foreground: 227 60% 25%; /* Dark Blue for contrast on yellow */
+    --accent: 40 98% 58%; /* Golden Yellow from gradient: #fdbb2d, slightly brighter */
+    --accent-foreground: 227 60% 20%; /* Dark Blue for contrast on yellow, slightly darker for better contrast */
 
     --destructive: 0 70% 45%; /* Saturated Red */
     --destructive-foreground: 0 0% 98%;
@@ -39,9 +40,9 @@ body {
     --radius: 0.5rem;
 
     /* Custom gradient variables */
-    --gradient-start: #1a2a6c;
-    --gradient-middle: #b21f1f;
-    --gradient-end: #fdbb2d;
+    --gradient-start: #1a2a6c; /* Original dark blue */
+    --gradient-middle: #c82828; /* Adjusted red - slightly more vibrant */
+    --gradient-end: #fdbb2d; /* Original yellow/orange */
   }
 
   .dark {
@@ -54,8 +55,8 @@ body {
     --popover: 227 30% 18%;
     --popover-foreground: 220 20% 92%;
 
-    --primary: 227 60% 58%; /* Lighter blue for dark mode primary */
-    --primary-foreground: 227 30% 12%; /* Dark text on light blue */
+    --primary: 227 65% 62%; /* Lighter blue for dark mode primary, adjusted for vibrancy */
+    --primary-foreground: 227 30% 10%; /* Darker text on light blue */
 
     --secondary: 227 25% 22%;
     --secondary-foreground: 220 20% 92%;
@@ -63,8 +64,8 @@ body {
     --muted: 227 25% 22%;
     --muted-foreground: 220 15% 70%;
 
-    --accent: 40 97% 61%; /* Golden Yellow */
-    --accent-foreground: 227 60% 20%; 
+    --accent: 40 98% 60%; /* Golden Yellow, slightly brighter for dark mode */
+    --accent-foreground: 227 60% 15%; /* Darker for contrast on yellow */
     
     --destructive: 0 60% 55%;
     --destructive-foreground: 0 0% 98%;
@@ -75,7 +76,7 @@ body {
 
     /* Custom gradient variables for dark mode if needed */
     --gradient-start: #1a2a6c;
-    --gradient-middle: #b21f1f;
+    --gradient-middle: #c82828;
     --gradient-end: #fdbb2d;
   }
 }
