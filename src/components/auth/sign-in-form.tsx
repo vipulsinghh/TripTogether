@@ -19,6 +19,7 @@ import { Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '../../lib/firebase'; // Import the Firebase app instance
+import { useCallback } from "react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -36,16 +37,14 @@ export default function SignInForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
     try {
-      const auth = getAuth(app); // Pass the app instance here
+      const auth = getAuth(app); 
       await signInWithEmailAndPassword(auth, values.email, values.password);
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('isUserSignedIn', 'true');
         localStorage.setItem('userEmail', values.email);
-        // Name is not available here, it would be set/updated via profile page
-        // We can check if profile preferences are already set, if not, initialize to false
         if (!localStorage.getItem('userProfilePreferencesSet')) {
             localStorage.setItem('userProfilePreferencesSet', 'false');
         }
@@ -53,15 +52,15 @@ export default function SignInForm() {
 
       toast({
         title: "Signed In!",
-        description: "Welcome back to RoamMate.",
+        description: "Welcome back to TripTogether.",
       });
 
-      router.push('/discover'); // Redirect to discover page
+      router.push('/discover'); 
     } catch (error: any) {
       console.error("Sign In Error:", error.message);
       toast({ title: "Sign In Failed", description: error.message, variant: "destructive" });
     }
-  }
+  }, [toast, router]);
 
   return (
     <Form {...form}>

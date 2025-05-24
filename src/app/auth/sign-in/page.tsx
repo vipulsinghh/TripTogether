@@ -1,7 +1,7 @@
 
 import SignInForm from '@/components/auth/sign-in-form';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button'; // Use actual Button
+import { Button } from '@/components/ui/button'; 
 import Link from 'next/link';
 
 export default function SignInPage() {
@@ -10,7 +10,7 @@ export default function SignInPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-gradient">Welcome Back!</CardTitle>
-          <CardDescription>Sign in to continue your journey with RoamMate.</CardDescription>
+          <CardDescription>Sign in to continue your journey with TripTogether.</CardDescription>
         </CardHeader>
         <CardContent>
           <SignInForm />

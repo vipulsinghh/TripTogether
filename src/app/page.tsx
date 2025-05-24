@@ -37,8 +37,8 @@ export default function LandingPage() {
            <div className="absolute inset-0 bg-black/40"></div> {/* Overlay for better text contrast */}
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            <span className="text-gradient">RoamMate:</span> Find Your Travel Tribe
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6">
+            <span className="text-gradient">TripTogether:</span> Find Your Travel Tribe
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-10 max-w-3xl mx-auto">
             Connect with like-minded adventurers, discover unique trips, and plan your next unforgettable journey together.
@@ -58,9 +58,9 @@ export default function LandingPage() {
       <section id="about" className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">What is RoamMate?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">What is TripTogether?</h2>
             <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-              RoamMate is more than just a travel app. It's a community for passionate explorers looking to share experiences, discover new destinations, and form lasting connections on the road.
+              TripTogether is more than just a travel app. It's a community for passionate explorers looking to share experiences, discover new destinations, and form lasting connections on the road.
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -76,13 +76,13 @@ export default function LandingPage() {
             </div>
             <div className="space-y-4 text-foreground/90">
               <p>
-                Ever dreamt of a trip but couldn't find the right companions? Or perhaps you're an avid traveler seeking new adventures with new friends? RoamMate bridges that gap.
+                Ever dreamt of a trip but couldn't find the right companions? Or perhaps you're an avid traveler seeking new adventures with new friends? TripTogether bridges that gap.
               </p>
               <p>
                 We leverage smart matching and AI-powered suggestions to help you find or create travel groups that perfectly align with your interests, budget, and travel style.
               </p>
               <p>
-                From weekend getaways to epic backpacking odysseys, RoamMate makes group travel seamless, fun, and accessible.
+                From weekend getaways to epic backpacking odysseys, TripTogether makes group travel seamless, fun, and accessible.
               </p>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function LandingPage() {
       <section id="features" className="py-16 md:py-24 bg-secondary/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">Why Choose RoamMate?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gradient mb-4">Why Choose TripTogether?</h2>
             <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
               Discover features designed to make your travel planning and experience extraordinary.
             </p>
@@ -176,7 +176,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Your Adventure?</h2>
           <p className="text-lg text-foreground/80 mb-8 max-w-xl mx-auto">
-            Join the RoamMate community today and never travel solo (unless you want to!).
+            Join the TripTogether community today and never travel solo (unless you want to!).
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
              <Button size="lg" asChild className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground hover:opacity-90 transition-opacity">
@@ -191,4 +191,3 @@ export default function LandingPage() {
     </div>
   );
 }
-

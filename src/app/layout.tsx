@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'RoamMate - Find Your Travel Tribe',
-  description: 'Connect with fellow adventurers and plan your next journey with RoamMate.',
+  title: 'TripTogether - Find Your Travel Tribe',
+  description: 'Connect with fellow adventurers and plan your next journey with TripTogether.',
 };
 
 export default function RootLayout({
