@@ -27,12 +27,12 @@ export default function LandingPage() {
       <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="absolute inset-0">
           <Image
-            src="https://cdn.pixabay.com/photo/2018/10/01/11/45/landscape-3715977_1280.jpg"
+            src="https://i.pinimg.com/736x/ca/34/b5/ca34b5169be4a4f5bbfd0ff02fb24bbe.jpg"
             alt="Beautiful travel landscape"
             layout="fill"
             objectFit="cover"
             data-ai-hint="travel landscape"
-            priority // Add priority for LCP images
+            priority
           />
            <div className="absolute inset-0 bg-black/40"></div> {/* Overlay for better text contrast */}
         </div>
@@ -66,7 +66,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div>
               <Image
-                src="https://placehold.co/600x400.png"
+                src="https://i.pinimg.com/736x/85/18/7f/85187f3218df08aa214db44c0988734e.jpg"
                 alt="Group of friends traveling"
                 width={600}
                 height={400}
@@ -191,3 +191,4 @@ export default function LandingPage() {
     </div>
   );
 }
+
