@@ -2,7 +2,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,11 +18,26 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText, ImagePlus } from 'lucide-react';
+import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText, ImagePlus, Tag, Mountain, Palmtree, Sun, MountainSnow, Snowflake, Landmark, Palette, Building2, Bike, Navigation } from 'lucide-react';
 import { useState } from "react";
+
+// Define categories similar to DiscoverPage for consistency
+const availableCategories = [
+  { id: 'Mountains', label: 'Mountains', icon: Mountain },
+  { id: 'Beach', label: 'Beach', icon: Palmtree },
+  { id: 'Desert', label: 'Desert', icon: Sun },
+  { id: 'Hill Stations', label: 'Hill Stations', icon: MountainSnow },
+  { id: 'Ice & Snow', label: 'Ice & Snow', icon: Snowflake },
+  { id: 'Historical', label: 'Historical', icon: Landmark },
+  { id: 'Cultural', label: 'Cultural', icon: Palette },
+  { id: 'City Break', label: 'City Break', icon: Building2 },
+  { id: 'Adventure', label: 'Adventure', icon: Bike },
+  { id: 'Road Trip', label: 'Road Trip', icon: Navigation },
+];
 
 const tripFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
@@ -30,15 +45,19 @@ const tripFormSchema = z.object({
   startDate: z.date({ required_error: "Start date is required." }),
   endDate: z.date({ required_error: "End date is required." }),
   description: z.string().min(20, { message: "Description must be at least 20 characters." }).max(500),
+  categories: z.array(z.string()).min(1, { message: "Please select at least one category." }),
   budget: z.string().optional(),
   maxGroupSize: z.coerce.number().min(2, "Group size must be at least 2").max(20, "Max group size is 20"),
   imageFiles: z.custom<FileList>().optional().refine(
-    (files) => !files || files.length <= 5, // Max 5 images
+    (files) => !files || files.length <= 5,
     "You can upload a maximum of 5 images."
   ).refine(
-    (files) => !files || Array.from(files).every(file => file.size <= 2 * 1024 * 1024), // Max 2MB per image
+    (files) => !files || Array.from(files).every(file => file.size <= 2 * 1024 * 1024),
     "Each image must be less than 2MB."
   ),
+}).refine(data => !data.endDate || !data.startDate || data.endDate >= data.startDate, {
+  message: "End date cannot be before start date.",
+  path: ["endDate"], 
 });
 
 type TripFormValues = z.infer<typeof tripFormSchema>;
@@ -53,13 +72,13 @@ export default function TripCreationForm() {
       title: "",
       destination: "",
       description: "",
+      categories: [],
       budget: "",
       maxGroupSize: 4,
     },
   });
 
   async function onSubmit(data: TripFormValues) {
-    // Simulate API call
     console.log("Trip Creation Data:", data);
     if (data.imageFiles) {
       console.log("Selected Images:", Array.from(data.imageFiles).map(file => file.name));
@@ -77,7 +96,6 @@ export default function TripCreationForm() {
     const files = event.target.files;
     if (files) {
       const fileNames = Array.from(files).map(file => file.name);
-      // Trigger validation for imageFiles field
       form.setValue("imageFiles", files, { shouldValidate: true });
       setSelectedFileNames(fileNames);
     } else {
@@ -221,8 +239,61 @@ export default function TripCreationForm() {
 
         <FormField
           control={form.control}
+          name="categories"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base flex items-center"><Tag className="mr-2 h-4 w-4 text-muted-foreground" />Categories</FormLabel>
+                <FormDescription>
+                  Select one or more categories that best describe your trip.
+                </FormDescription>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {availableCategories.map((category) => (
+                  <FormField
+                    key={category.id}
+                    control={form.control}
+                    name="categories"
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={category.id}
+                          className="flex flex-row items-center space-x-2 space-y-0 bg-muted/50 p-3 rounded-md border"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(category.id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...(field.value || []), category.id])
+                                  : field.onChange(
+                                      (field.value || []).filter(
+                                        (value) => value !== category.id
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal flex items-center cursor-pointer">
+                             <category.icon className="mr-2 h-4 w-4 text-primary" />
+                            {category.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+
+        <FormField
+          control={form.control}
           name="imageFiles"
-          render={({ field }) => (
+          render={() => ( // field is not directly used here, but we need to manage its value
             <FormItem>
               <FormLabel className="flex items-center"><ImagePlus className="mr-2 h-4 w-4 text-muted-foreground" />Trip Images (Optional)</FormLabel>
               <FormControl>
@@ -230,7 +301,7 @@ export default function TripCreationForm() {
                   type="file" 
                   multiple 
                   accept="image/png, image/jpeg, image/gif"
-                  onChange={handleFileChange} // Use a specific handler to also update field value
+                  onChange={handleFileChange}
                   className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                 />
               </FormControl>
@@ -240,7 +311,7 @@ export default function TripCreationForm() {
                 </FormDescription>
               )}
               <FormDescription>Upload up to 5 images (max 2MB each). PNG, JPG, GIF accepted.</FormDescription>
-              <FormMessage />
+              <FormMessage /> {/* This will show errors from the schema refinement */}
             </FormItem>
           )}
         />

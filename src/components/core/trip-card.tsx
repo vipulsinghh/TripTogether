@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, CalendarDays, Users, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, CalendarDays, Users, DollarSign, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -14,17 +14,18 @@ export interface TripCardProps {
   destination: string;
   dates: string;
   description: string;
-  imageUrls: string[]; // Changed from imageUrl to imageUrls
-  dataAiHint?: string; 
+  imageUrls: string[];
+  dataAiHint?: string;
   memberCount: number;
   budget: string;
+  categories: string[]; // Added categories
 }
 
-export default function TripCard({ title, destination, dates, description, imageUrls, dataAiHint, memberCount, budget }: TripCardProps) {
+export default function TripCard({ title, destination, dates, description, imageUrls, dataAiHint, memberCount, budget, categories }: TripCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleNextImage = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click-through if buttons are inside
+    e.stopPropagation();
     setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
   };
 
@@ -33,7 +34,7 @@ export default function TripCard({ title, destination, dates, description, image
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + imageUrls.length) % imageUrls.length);
   };
 
-  const currentImageUrl = imageUrls && imageUrls.length > 0 ? imageUrls[currentImageIndex] : 'https://placehold.co/600x400.png?text=No+Image';
+  const currentImageUrl = imageUrls && imageUrls.length > 0 ? imageUrls[currentImageIndex] : 'https://placehold.co/600x400.png';
   const aiHint = dataAiHint || (imageUrls && imageUrls.length > 0 ? "travel landscape" : "placeholder");
 
 
@@ -83,6 +84,16 @@ export default function TripCard({ title, destination, dates, description, image
           </div>
           <CardDescription className="mt-3 text-foreground/90 line-clamp-3">{description}</CardDescription>
         </div>
+         {categories && categories.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-xs font-semibold mb-1 text-primary flex items-center"><Tag className="h-3 w-3 mr-1" /> Categories</h4>
+            <div className="flex flex-wrap gap-1">
+              {categories.slice(0, 3).map(category => ( // Show up to 3 categories
+                <Badge key={category} variant="outline" className="text-xs">{category}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="p-6 bg-secondary/30 flex justify-between items-center">
         <div className="flex items-center gap-2">

@@ -12,10 +12,11 @@ const mockGroups: TripCardProps[] = [
     destination: 'Thailand, Vietnam, Cambodia',
     dates: 'Nov 2024 - Jan 2025',
     description: 'Looking for adventurous souls to explore SEA for 2 months. Flexible itinerary.',
-    imageUrls: ['https://placehold.co/600x400.png?text=SEA+Temple', 'https://placehold.co/600x400.png?text=SEA+Market'],
+    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'asia temple',
     memberCount: 3,
     budget: '$1500/month',
+    categories: ['Adventure', 'Cultural', 'Beach'],
   },
   {
     id: 'group2',
@@ -23,10 +24,11 @@ const mockGroups: TripCardProps[] = [
     destination: 'Paris, Rome, Berlin',
     dates: 'Spring 2025',
     description: 'Culture vultures unite! Join us for a whirlwind tour of Europe\'s iconic cities.',
-    imageUrls: ['https://placehold.co/600x400.png?text=Europe+City1', 'https://placehold.co/600x400.png?text=Europe+City2'],
+    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'europe city',
     memberCount: 4,
     budget: '$2500 - $3000',
+    categories: ['City Break', 'Historical', 'Cultural'],
   },
   {
     id: 'group3',
@@ -34,10 +36,11 @@ const mockGroups: TripCardProps[] = [
     destination: 'Peru & Bolivia',
     dates: 'July 2025',
     description: 'High-altitude trekking adventure through the Andes. Experienced hikers preferred.',
-    imageUrls: ['https://placehold.co/600x400.png?text=Andes+Mountains1', 'https://placehold.co/600x400.png?text=Andes+Mountains2'],
+    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'andes mountains',
     memberCount: 2,
     budget: '$3000 - $4000',
+    categories: ['Mountains', 'Adventure'],
   },
 ];
 
@@ -48,7 +51,19 @@ export default function GroupsPage() {
   useEffect(() => {
     // In a real app, fetch groups based on filters
     console.log("Applying filters:", filters);
-    setFilteredGroups(mockGroups); 
+    // Basic filtering example (can be expanded)
+    let tempGroups = mockGroups;
+    if (filters.destination) {
+        tempGroups = tempGroups.filter(group => group.destination.toLowerCase().includes(filters.destination.toLowerCase()));
+    }
+    // Add more filter logic here for budget, dates, interests etc.
+    // For category filtering, if filters.categories is an array:
+    // if (filters.categories && filters.categories.length > 0) {
+    //   tempGroups = tempGroups.filter(group => 
+    //     filters.categories.some(cat => group.categories.includes(cat))
+    //   );
+    // }
+    setFilteredGroups(tempGroups); 
   }, [filters]);
 
   const handleFilterChange = (newFilters: any) => {
@@ -63,7 +78,7 @@ export default function GroupsPage() {
       <section className="lg:w-3/4">
         <h1 className="text-3xl font-bold mb-6 text-gradient">Find Your Travel Group</h1>
         {filteredGroups.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> {/* Increased gap */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {filteredGroups.map((group) => (
               <TripCard key={group.id} {...group} />
             ))}
