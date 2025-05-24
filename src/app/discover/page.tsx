@@ -153,13 +153,11 @@ export default function DiscoverPage() {
       
       const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       if (!signedIn) {
-        // If not signed in, clear local state and potentially redirect (though header might handle this too)
         setTrips([]); 
-        // router.replace('/'); // Or let header handle it
         return;
       }
     }
-    setTrips(initialTrips); // Load initial trips if profile complete or not relevant for this page logic
+    setTrips(initialTrips); 
   }, []);
   
   const handleResetFilters = () => {
@@ -186,7 +184,6 @@ export default function DiscoverPage() {
   });
 
   if (profilePreferencesSet === null) {
-    // Still loading preference status
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <RotateCcw className="h-10 w-10 text-primary animate-spin mr-2" /> 
@@ -196,7 +193,7 @@ export default function DiscoverPage() {
   }
 
   return (
-    <div className="flex flex-col space-y-8">
+    <div className="flex flex-col space-y-6 md:space-y-8">
       {!profilePreferencesSet && (
         <Alert variant="default" className="border-primary bg-primary/5">
           <UserCog className="h-5 w-5 text-primary" />
@@ -217,7 +214,7 @@ export default function DiscoverPage() {
         <Input 
           type="text" 
           placeholder="Search trips by title or destination..." 
-          className="pl-10 pr-4 py-3 text-base rounded-lg shadow-sm"
+          className="pl-10 pr-4 py-3 rounded-lg shadow-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -225,21 +222,21 @@ export default function DiscoverPage() {
 
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold flex items-center"><Tag className="mr-2 h-6 w-6 text-primary" />Categories</h2>
+          <h2 className="text-xl md:text-2xl font-semibold flex items-center"><Tag className="mr-2 h-5 w-5 md:h-6 md:w-6 text-primary" />Categories</h2>
         </div>
         <ScrollArea className="w-full whitespace-nowrap rounded-md">
-          <div className="flex space-x-4 pb-4">
+          <div className="flex space-x-3 sm:space-x-4 pb-4">
             {appCategories.map((category) => {
               const IconComponent = categoryIcons[category.id] || Tag; 
               return (
                 <Button 
                   key={category.id} 
                   variant={selectedCategory === category.id ? "default" : "outline"}
-                  className="flex flex-col items-center justify-center h-28 w-28 p-2 rounded-lg shadow-md transition-all hover:shadow-lg"
+                  className="flex flex-col items-center justify-center h-24 w-24 p-2 rounded-lg shadow-md transition-all hover:shadow-lg"
                   onClick={() => handleCategorySelect(category.id)}
                 >
-                  <IconComponent className={`h-10 w-10 mb-2 ${selectedCategory === category.id ? 'text-primary-foreground' : 'text-primary'}`} />
-                  <span className="text-xs font-medium text-center">{category.name}</span>
+                  <IconComponent className={`h-8 w-8 mb-1 sm:mb-2 ${selectedCategory === category.id ? 'text-primary-foreground' : 'text-primary'}`} />
+                  <span className="text-xs font-medium text-center break-words">{category.name}</span>
                 </Button>
               );
             })}
@@ -249,27 +246,27 @@ export default function DiscoverPage() {
       </div>
 
       <div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold">
             {selectedCategory ? `${selectedCategory} Trips` : "Recommended Trips"}
           </h2>
            {(searchTerm || selectedCategory) && (
             <Button onClick={handleResetFilters} variant="outline" size="sm">
-              <RotateCcw className="mr-2 h-4 w-4" />
+              <RotateCcw className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               Clear Filters
             </Button>
           )}
         </div>
         {filteredTrips.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {filteredTrips.map((trip) => (
               <TripCard key={trip.id} trip={trip} />
             ))}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[200px] text-center py-10">
-             <UsersIcon className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-xl text-muted-foreground mb-4">No trips match your current search or filters.</p>
+             <UsersIcon className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground mb-4" />
+            <p className="text-lg md:text-xl text-muted-foreground mb-4">No trips match your current search or filters.</p>
             <Button onClick={handleResetFilters} variant="outline">
               <RotateCcw className="mr-2 h-4 w-4" />
               Clear Filters & Reload All

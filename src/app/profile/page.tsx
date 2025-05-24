@@ -82,7 +82,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-2 sm:px-4">
       {!profilePreferencesSet && isEditing && ( // Show alert only during initial setup
          <Alert variant="destructive" className="mb-6">
           <AlertTriangle className="h-4 w-4" />
@@ -94,20 +94,20 @@ export default function ProfilePage() {
         </Alert>
       )}
       <Card className="shadow-xl">
-        <CardHeader className="bg-muted/30 p-6">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <Avatar className="h-32 w-32 border-4 border-background shadow-md">
+        <CardHeader className="bg-muted/30 p-4 md:p-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-md">
               <AvatarImage src={user.avatarUrl} alt={user.name || "User"} data-ai-hint="profile avatar" />
               <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             <div className="text-center md:text-left">
-              <CardTitle className="text-4xl font-bold">{user.name}</CardTitle>
-              <CardDescription className="text-lg text-muted-foreground">{user.email}</CardDescription>
-              {profilePreferencesSet && ( // Only show Edit/View button if profile was initially set
+              <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">{user.name}</CardTitle>
+              <CardDescription className="text-base sm:text-lg text-muted-foreground">{user.email}</CardDescription>
+              {profilePreferencesSet && ( 
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-4" 
+                  className="mt-3 md:mt-4" 
                   onClick={() => setIsEditing(!isEditing)}
                 >
                   <Edit3 className="mr-2 h-4 w-4" />
@@ -117,46 +117,46 @@ export default function ProfilePage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-4 md:p-6">
           {isEditing ? (
             <UserProfileForm defaultValues={user} onSaveSuccess={handleSaveSuccess} />
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8">
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-primary">Bio</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 text-primary">Bio</h3>
                 <p className="text-foreground/90 whitespace-pre-line">{user.bio || 'No bio set.'}</p>
               </div>
               
               <div className="space-y-4">
-                 <h3 className="text-xl font-semibold mb-3 flex items-center text-primary border-b pb-2">
+                 <h3 className="text-lg sm:text-xl font-semibold mb-3 flex items-center text-primary border-b pb-2">
                   <UserCog className="mr-2 h-5 w-5" /> My Travel Style
                 </h3>
-                <div className="grid md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-8 gap-y-3 md:gap-y-4 text-sm">
                   <div className="flex items-start">
-                    <Cigarette className="h-5 w-5 mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+                    <Cigarette className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
                     <div><strong className="font-medium text-foreground/90">Smoking Stance:</strong> {getLabel(userSmokingPreferenceOptions, user.smokingPolicy)}</div>
                   </div>
                   <div className="flex items-start">
-                    <Wine className="h-5 w-5 mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+                    <Wine className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
                     <div><strong className="font-medium text-foreground/90">Alcohol Stance:</strong> {getLabel(userAlcoholPreferenceOptions, user.alcoholPolicy)}</div>
                   </div>
                    <div className="flex items-start">
-                    <Users className="h-5 w-5 mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+                    <Users className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
                     <div><strong className="font-medium text-foreground/90">Preferred Gender Mix:</strong> {getLabel(genderPreferenceOptions, user.preferredGenderMix)}</div>
                   </div>
                   <div className="flex items-start">
-                    <Cake className="h-5 w-5 mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+                    <Cake className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
                     <div><strong className="font-medium text-foreground/90">Preferred Age Group:</strong> {getLabel(ageGroupOptions, user.preferredAgeGroup)}</div>
                   </div>
-                  <div className="flex items-start col-span-1 md:col-span-2">
-                    <CheckSquare className="h-5 w-5 mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+                  <div className="flex items-start md:col-span-2">
+                    <CheckSquare className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
                     <div><strong className="font-medium text-foreground/90">Preferred Traveler Type:</strong> {getLabel(travelerTypeOptions, user.preferredTravelerType)}</div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <Heart className="mr-2 h-5 w-5" /> Interests
                 </h3>
                 {user.interests && user.interests.length > 0 ? (
@@ -169,7 +169,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <Briefcase className="mr-2 h-5 w-5" /> Travel History
                 </h3>
                 {user.travelHistory && user.travelHistory.length > 0 ? (
@@ -182,7 +182,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <MapPin className="mr-2 h-5 w-5" /> Other Preferences
                 </h3>
                  {user.preferences && user.preferences.length > 0 ? (
@@ -197,10 +197,9 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
-       {/* Example of "Instagram-like" photo grid - could be trips created by user or gallery */}
-       <div className="mt-12">
-          <h2 className="text-2xl font-semibold mb-4 text-center">My Travel Snaps</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+       <div className="mt-8 md:mt-12">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center">My Travel Snaps</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden shadow-md">
                  <Image src={`https://placehold.co/300x300.png?text=Snap+${i}`} alt={`Travel snap ${i}`} width={300} height={300} className="object-cover w-full h-full" data-ai-hint="travel photo" />

@@ -35,13 +35,11 @@ export default function SignInForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulate API call
     console.log("Sign In Data:", values);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('isUserSignedIn', 'true');
-      // Check if profile preferences were set, if not, initialize to false.
       if (!localStorage.getItem('userProfilePreferencesSet')) {
         localStorage.setItem('userProfilePreferencesSet', 'false');
       }
@@ -52,23 +50,22 @@ export default function SignInForm() {
       description: "Welcome back to RoamMate.",
     });
     
-    router.push('/discover'); // Redirect to discover page
-    // form.reset(); // Optionally reset form
+    router.push('/discover'); 
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-sm">Email</FormLabel>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} className="pl-10" />
+                  <Input placeholder="you@example.com" {...field} className="pl-8 sm:pl-10" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -80,18 +77,18 @@ export default function SignInForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-sm">Password</FormLabel>
                <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="pl-10" />
+                  <Input type="password" placeholder="••••••••" {...field} className="pl-8 sm:pl-10" />
                 </FormControl>
               </div>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground">
+        <Button type="submit" className="w-full text-sm sm:text-base bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground">
           Sign In
         </Button>
       </form>

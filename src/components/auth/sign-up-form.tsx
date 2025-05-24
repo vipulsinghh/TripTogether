@@ -37,13 +37,12 @@ export default function SignUpForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulate API call
     console.log("Sign Up Data:", values);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('isUserSignedIn', 'true');
-      localStorage.setItem('userProfilePreferencesSet', 'false'); // New user, profile not set
+      localStorage.setItem('userProfilePreferencesSet', 'false'); 
     }
     
     toast({
@@ -51,23 +50,22 @@ export default function SignUpForm() {
       description: "Welcome to RoamMate! Please complete your profile for the best experience.",
     });
     
-    router.push('/discover'); // Redirect to discover page
-    // form.reset(); // Optionally reset form
+    router.push('/discover'); 
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel className="text-sm">Full Name</FormLabel>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <User className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input placeholder="Your Name" {...field} className="pl-10" />
+                  <Input placeholder="Your Name" {...field} className="pl-8 sm:pl-10" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -79,11 +77,11 @@ export default function SignUpForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-sm">Email</FormLabel>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} className="pl-10" />
+                  <Input placeholder="you@example.com" {...field} className="pl-8 sm:pl-10" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -95,18 +93,18 @@ export default function SignUpForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-sm">Password</FormLabel>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="pl-10" />
+                  <Input type="password" placeholder="••••••••" {...field} className="pl-8 sm:pl-10" />
                 </FormControl>
               </div>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground">
+        <Button type="submit" className="w-full text-sm sm:text-base bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground">
           Create Account
         </Button>
       </form>
