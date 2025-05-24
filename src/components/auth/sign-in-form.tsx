@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -23,6 +25,7 @@ const formSchema = z.object({
 
 export default function SignInForm() {
   const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,6 +42,11 @@ export default function SignInForm() {
       title: "Signed In!",
       description: "Welcome back to RoamMate.",
     });
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isUserSignedIn', 'true');
+    }
+    router.push('/discover');
     // form.reset(); // Optionally reset form
   }
 

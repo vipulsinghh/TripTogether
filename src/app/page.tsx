@@ -1,4 +1,8 @@
 
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, Users, Compass, Zap, HeartHandshake, Lightbulb } from 'lucide-react';
@@ -6,6 +10,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function LandingPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isSignedIn = localStorage.getItem('isUserSignedIn');
+      if (isSignedIn === 'true') {
+        router.replace('/discover');
+      }
+    }
+  }, [router]);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -175,5 +190,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    

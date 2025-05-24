@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Lock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -24,6 +26,7 @@ const formSchema = z.object({
 
 export default function SignUpForm() {
   const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,6 +44,11 @@ export default function SignUpForm() {
       title: "Account Created!",
       description: "Welcome to RoamMate! Please complete your profile.",
     });
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isUserSignedIn', 'true');
+    }
+    router.push('/discover'); 
     // router.push('/profile-setup') or similar
     // form.reset(); // Optionally reset form
   }

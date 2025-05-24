@@ -1,5 +1,7 @@
+
 import SignUpForm from '@/components/auth/sign-up-form';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button'; // Use actual Button
 import Link from 'next/link';
 
 export default function SignUpPage() {
@@ -23,9 +25,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-
-// Minimal Button component to avoid circular dependency if Button is not yet defined or for simplicity.
-const Button = ({ variant, asChild, className, children, ...props }: any) => {
-  const Comp = asChild ? 'div' : 'button'; // Using div for asChild to avoid issues with Link
-  return <Comp className={`${className} ${variant === 'link' ? 'text-blue-600 hover:underline' : ''}`} {...props}>{children}</Comp>;
-};

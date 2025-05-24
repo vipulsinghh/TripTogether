@@ -1,5 +1,7 @@
+
 import SignInForm from '@/components/auth/sign-in-form';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button'; // Use actual Button
 import Link from 'next/link';
 
 export default function SignInPage() {
@@ -23,10 +25,3 @@ export default function SignInPage() {
     </div>
   );
 }
-
-// Minimal Button component to avoid circular dependency if Button is not yet defined or for simplicity.
-// Replace with actual ShadCN Button if available and configured.
-const Button = ({ variant, asChild, className, children, ...props }: any) => {
-  const Comp = asChild ? 'div' : 'button'; // Using div for asChild to avoid issues with Link
-  return <Comp className={`${className} ${variant === 'link' ? 'text-blue-600 hover:underline' : ''}`} {...props}>{children}</Comp>;
-};
