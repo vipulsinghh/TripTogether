@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Trip } from '@/types'; 
 import TripCard from '@/components/core/trip-card';
 import { Button } from '@/components/ui/button';
@@ -21,8 +21,8 @@ const initialTrips: Trip[] = [
     startDate: new Date('2024-10-10'),
     endDate: new Date('2024-10-17'),
     description: 'Explore volcanoes, surf, and find your zen in beautiful Bali. We will visit waterfalls, rice paddies and enjoy local cuisine.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
-    dataAiHint: 'bali landscape',
+    imageUrls: ['https://images.unsplash.com/photo-1435783099294-283725c37230?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'],
+    dataAiHint: 'bali temple sea',
     maxGroupSize: 8,
     currentMemberCount: 5,
     budget: '$1000 - $1500',
@@ -45,8 +45,8 @@ const initialTrips: Trip[] = [
     startDate: new Date('2024-11-05'),
     endDate: new Date('2024-11-12'),
     description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo. A mix of modern marvels and serene shrines.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
-    dataAiHint: 'tokyo city',
+    imageUrls: ['https://placehold.co/600x400.png'],
+    dataAiHint: 'tokyo skyline',
     maxGroupSize: 6,
     currentMemberCount: 3,
     budget: '$2000 - $2500',
@@ -70,7 +70,7 @@ const initialTrips: Trip[] = [
     endDate: new Date('2024-12-07'),
     description: 'Indulge in art, cuisine, and romance in the City of Lights. Visit museums, enjoy cafes, and stroll along the Seine.',
     imageUrls: ['https://placehold.co/600x400.png'],
-    dataAiHint: 'paris romance',
+    dataAiHint: 'paris eiffel tower',
     maxGroupSize: 4,
     currentMemberCount: 2,
     budget: '$1800 - $2200',
@@ -85,7 +85,7 @@ const initialTrips: Trip[] = [
     createdAt: new Date(),
     updatedAt: new Date(),
   },
-    {
+  {
     id: '4',
     title: 'Andes Mountain Trek',
     destination: 'Peru',
@@ -93,8 +93,8 @@ const initialTrips: Trip[] = [
     startDate: new Date('2025-01-10'),
     endDate: new Date('2025-01-20'),
     description: 'Challenging trek through the stunning Andes mountains. Experience breathtaking views and ancient Incan trails.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
-    dataAiHint: 'andes peru',
+    imageUrls: ['https://placehold.co/600x400.png'],
+    dataAiHint: 'andes mountains peru',
     maxGroupSize: 10,
     currentMemberCount: 4,
     budget: '$2200 - $2800',
@@ -113,7 +113,7 @@ const initialTrips: Trip[] = [
     endDate: new Date('2025-02-22'),
     description: 'Camel rides, stargazing, and Berber culture in the vast Sahara desert. Sleep under the stars in a desert camp.',
     imageUrls: ['https://placehold.co/600x400.png'],
-    dataAiHint: 'sahara morocco',
+    dataAiHint: 'sahara desert morocco',
     maxGroupSize: 12,
     currentMemberCount: 6,
     budget: '$1500 - $2000',
@@ -122,6 +122,30 @@ const initialTrips: Trip[] = [
     creatorName: 'DesertDreamer',
     smokingPolicy: 'any', alcoholPolicy: 'socially', genderPreference: 'any', targetAgeGroup: 'any', targetTravelerType: 'friends',
     createdAt: new Date(), updatedAt: new Date(),
+  },
+  {
+    id: '6',
+    title: 'Kashmir Valley Serenity',
+    destination: 'Kashmir, India',
+    startLocation: 'Srinagar International Airport (SXR)',
+    startDate: new Date('2025-03-10'),
+    endDate: new Date('2025-03-17'),
+    description: 'Experience the breathtaking beauty of Kashmir, from serene Dal Lake houseboats to majestic Himalayan foothills. Enjoy local culture and cuisine.',
+    imageUrls: ['https://placehold.co/600x400.png'],
+    dataAiHint: 'kashmir valley',
+    maxGroupSize: 8,
+    currentMemberCount: 2,
+    budget: '$1200 - $1800',
+    categories: ['Mountains', 'Cultural', 'Hill Stations', 'Wellness'],
+    createdById: 'user6',
+    creatorName: 'KashmirExplorer',
+    smokingPolicy: 'outside_only', 
+    alcoholPolicy: 'socially', 
+    genderPreference: 'any', 
+    targetAgeGroup: 'any', 
+    targetTravelerType: 'friends',
+    createdAt: new Date(), 
+    updatedAt: new Date(),
   },
 ];
 
@@ -159,27 +183,27 @@ export default function DiscoverPage() {
       // Redirect to login if not signed in - this page requires auth
       const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       if (!signedIn) {
-        // Assuming you have a way to redirect, e.g. Next.js router
-        // For simplicity, just don't load trips. In a real app, redirect.
         setTrips([]); 
+        // In a real app, you might redirect here:
+        // router.replace('/auth/sign-in');
         return;
       }
     }
-    setTrips(initialTrips); // Load initial trips if signed in
+    setTrips(initialTrips); 
   }, []);
   
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setSearchTerm('');
     setSelectedCategory(null);
-  };
+  }, []);
 
-  const handleCategorySelect = (categoryName: string) => {
+  const handleCategorySelect = useCallback((categoryName: string) => {
     if (selectedCategory === categoryName) {
-      setSelectedCategory(null); // Deselect if already selected
+      setSelectedCategory(null); 
     } else {
       setSelectedCategory(categoryName);
     }
-  };
+  }, [selectedCategory]);
 
   const filteredTrips = trips.filter(trip => {
     const matchesSearch = searchTerm === '' || 
@@ -191,7 +215,7 @@ export default function DiscoverPage() {
     return matchesSearch && matchesCategory;
   });
 
-  if (profilePreferencesSet === null) { // Still checking if profile state is determined
+  if (profilePreferencesSet === null) { 
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <RotateCcw className="h-10 w-10 text-primary animate-spin mr-2" /> 
@@ -202,7 +226,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="flex flex-col space-y-6 md:space-y-8">
-      {!profilePreferencesSet && (
+      {profilePreferencesSet === false && ( // Check explicitly for false
         <Alert variant="default" className="border-primary bg-primary/5">
           <UserCog className="h-5 w-5 text-primary" />
           <AlertTitle className="font-semibold text-primary">Complete Your Profile!</AlertTitle>
@@ -222,7 +246,7 @@ export default function DiscoverPage() {
         <Input 
           type="text" 
           placeholder="Search trips by title or destination..." 
-          className="pl-10 pr-4 py-3 rounded-lg shadow-sm"
+          className="pl-10 pr-4 py-3 rounded-lg shadow-sm text-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
