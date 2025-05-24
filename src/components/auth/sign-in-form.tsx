@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Import modular auth functions
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
@@ -35,22 +36,30 @@ export default function SignInForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Sign In Data:", values);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('isUserSignedIn', 'true');
-      if (!localStorage.getItem('userProfilePreferencesSet')) {
-        localStorage.setItem('userProfilePreferencesSet', 'false');
-      }
-    }
+    try {
+      const auth = getAuth(); // Get auth instance
+      await signInWithEmailAndPassword(auth, values.email, values.password); // Use modular function
 
-    toast({
-      title: "Signed In!",
-      description: "Welcome back to RoamMate.",
-    });
-    
-    router.push('/discover'); 
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('isUserSignedIn', 'true');
+        localStorage.setItem('userEmail', values.email);
+        // Name is not available here, it would be set/updated via profile page
+        // We can check if profile preferences are already set, if not, initialize to false
+        if (!localStorage.getItem('userProfilePreferencesSet')) {
+            localStorage.setItem('userProfilePreferencesSet', 'false');
+        }
+      }
+
+      toast({
+        title: "Signed In!",
+        description: "Welcome back to RoamMate.",
+      });
+
+      router.push('/discover'); // Redirect to discover page
+    } catch (error: any) {
+      console.error("Sign In Error:", error.message);
+      toast({ title: "Sign In Failed", description: error.message, variant: "destructive" });
+    }
   }
 
   return (
@@ -65,7 +74,7 @@ export default function SignInForm() {
               <div className="relative">
                 <Mail className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} className="pl-8 sm:pl-10" />
+                  <Input placeholder="you@example.com" {...field} className="pl-8 sm:pl-10 text-sm" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -81,7 +90,7 @@ export default function SignInForm() {
                <div className="relative">
                 <Lock className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="pl-8 sm:pl-10" />
+                  <Input type="password" placeholder="••••••••" {...field} className="pl-8 sm:pl-10 text-sm" />
                 </FormControl>
               </div>
               <FormMessage />

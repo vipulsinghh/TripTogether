@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Trash2, Save, UserCog, Cigarette, Wine, Users, Cake, CheckSquare } from 'lucide-react';
+import type { User } from '@/types'; // Import User type
 import { 
   userSmokingPreferenceOptions, 
   userAlcoholPreferenceOptions, 
@@ -29,10 +30,11 @@ import {
 
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  bio: z.string().max(300, { message: "Bio cannot exceed 300 characters." }).optional(),
-  interests: z.array(z.object({ value: z.string().min(1, "Interest cannot be empty") })).optional(),
-  travelHistory: z.array(z.object({ value: z.string().min(1, "Travel history item cannot be empty") })).optional(),
-  preferences: z.array(z.object({ value: z.string().min(1, "Preference cannot be empty") })).optional(),
+  // Email is not part of the form for editing directly, it's usually fixed
+  bio: z.string().max(300, { message: "Bio cannot exceed 300 characters." }).optional().default(''),
+  interests: z.array(z.object({ value: z.string().min(1, "Interest cannot be empty").max(50, "Interest too long") })).optional().default([{value:''}]),
+  travelHistory: z.array(z.object({ value: z.string().min(1, "Travel history item cannot be empty").max(100, "History item too long") })).optional().default([{value:''}]),
+  preferences: z.array(z.object({ value: z.string().min(1, "Preference cannot be empty").max(100, "Preference too long") })).optional().default([{value:''}]),
   // These fields describe the USER's own habits and what they look for in companions/groups
   smokingPolicy: z.enum(['any', 'non_smoker', 'smoker_friendly', 'flexible_smoking']).default('any'),
   alcoholPolicy: z.enum(['any', 'dry_trip', 'social_drinker', 'party_friendly']).default('any'),
@@ -44,8 +46,8 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 interface UserProfileFormProps {
-  defaultValues?: Partial<ProfileFormValues & { email?: string; avatarUrl?: string }>;
-  onSaveSuccess?: () => void; 
+  defaultValues?: Partial<User>; // Use User type for defaultValues
+  onSaveSuccess?: (data: ProfileFormValues) => void; 
 }
 
 export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserProfileFormProps) {
@@ -55,6 +57,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
     defaultValues: {
       name: defaultValues?.name || "",
       bio: defaultValues?.bio || "",
+      // Ensure interests, travelHistory, preferences are arrays of objects with a 'value' property
       interests: defaultValues?.interests?.map(i => ({ value: i })) || [{ value: "" }],
       travelHistory: defaultValues?.travelHistory?.map(th => ({ value: th })) || [{ value: "" }],
       preferences: defaultValues?.preferences?.map(p => ({ value: p })) || [{ value: "" }],
@@ -78,15 +81,25 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
 
 
   async function onSubmit(data: ProfileFormValues) {
-    console.log("Profile Data to save:", data);
+    // Convert arrays of objects back to arrays of strings for the User type, filtering out empty ones
+    const processedData = {
+      ...data,
+      interests: data.interests?.map(i => i.value).filter(v => v.trim() !== '') || [],
+      travelHistory: data.travelHistory?.map(th => th.value).filter(v => v.trim() !== '') || [],
+      preferences: data.preferences?.map(p => p.value).filter(v => v.trim() !== '') || [],
+    };
+    console.log("Profile Data to save:", processedData);
     await new Promise(resolve => setTimeout(resolve, 1000)); 
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('userProfilePreferencesSet', 'true');
+      // Optionally save the whole profile to localStorage for persistence in prototype
+      localStorage.setItem('userProfileData', JSON.stringify(processedData));
+      if(processedData.name) localStorage.setItem('userName', processedData.name);
     }
 
     if (onSaveSuccess) {
-      onSaveSuccess(); 
+      onSaveSuccess(data); // Pass the original form data, or processedData if parent expects that format
     } 
   }
 

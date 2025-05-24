@@ -5,7 +5,7 @@ import UserProfileForm from '@/components/core/user-profile-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Edit3, MapPin, Briefcase, Heart, UserCog, Cigarette, Wine, Users, Cake, CheckSquare, AlertTriangle } from 'lucide-react';
+import { Edit3, MapPin, Briefcase, Heart, UserCog, Cigarette, Wine, Users, Cake, CheckSquare, AlertTriangle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -57,12 +57,20 @@ export default function ProfilePage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, fetch user data from API
-    setUser(mockUser); // For now, use mockUser
-
     if (typeof window !== 'undefined') {
         const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
         setProfilePreferencesSet(preferencesSet);
+
+        const storedName = localStorage.getItem('userName');
+        const storedEmail = localStorage.getItem('userEmail');
+
+        setUser(prevUser => ({
+          ...prevUser,
+          name: storedName || prevUser.name,
+          email: storedEmail || prevUser.email,
+          // Potentially load other saved profile fields from localStorage here too if UserProfileForm saves them
+        }));
+        
         if (!preferencesSet) {
             setIsEditing(true); // Force edit mode if preferences not set
         } else {
@@ -71,17 +79,23 @@ export default function ProfilePage() {
     }
   }, []);
 
-  const handleSaveSuccess = () => {
+  const handleSaveSuccess = (updatedUserData: Partial<User>) => {
     setIsEditing(false); // Switch back to view mode
     setProfilePreferencesSet(true); // Mark as set in component state
     // userProfilePreferencesSet in localStorage is handled by UserProfileForm
+
+    // Update user state with the data from the form
+    setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
+
+    // Also update localStorage for name if it was changed
+    if (updatedUserData.name && typeof window !== 'undefined') {
+      localStorage.setItem('userName', updatedUserData.name);
+    }
+    
     toast({
       title: "Profile Updated!",
       description: "Your changes have been saved successfully.",
     });
-    // Potentially refetch user data here if it was a real API call and update `user` state
-    // For mock data, we can re-set it or assume the form directly modified a shared mockUser object if that were the case.
-    // For this example, we'll just toggle edit mode.
   };
 
   return (
@@ -104,9 +118,13 @@ export default function ProfilePage() {
               <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             <div className="text-center md:text-left">
-              <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">{user.name}</CardTitle>
-              <CardDescription className="text-base sm:text-lg text-muted-foreground">{user.email}</CardDescription>
-              {profilePreferencesSet && ( 
+              <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">{user.name || "Set Your Name"}</CardTitle>
+              <CardDescription className="text-base sm:text-lg text-muted-foreground flex items-center justify-center md:justify-start">
+                <Mail className="mr-2 h-4 w-4" />
+                {user.email || "No email set"}
+              </CardDescription>
+              {/* Show Edit button only if preferences are set, or if in edit mode allow 'View Profile' */}
+              {(profilePreferencesSet || isEditing) && ( 
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -162,9 +180,9 @@ export default function ProfilePage() {
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <Heart className="mr-2 h-5 w-5" /> Interests
                 </h3>
-                {user.interests && user.interests.length > 0 ? (
+                {user.interests && user.interests.length > 0 && user.interests.some(i => i.trim() !== '') ? (
                   <div className="flex flex-wrap gap-2">
-                    {user.interests.map((interest) => (
+                    {user.interests.filter(i => i.trim() !== '').map((interest) => (
                       <Badge key={interest} variant="secondary" className="text-sm px-3 py-1">{interest}</Badge>
                     ))}
                   </div>
@@ -175,9 +193,9 @@ export default function ProfilePage() {
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <Briefcase className="mr-2 h-5 w-5" /> Travel History
                 </h3>
-                {user.travelHistory && user.travelHistory.length > 0 ? (
+                {user.travelHistory && user.travelHistory.length > 0 && user.travelHistory.some(th => th.trim() !== '') ? (
                   <ul className="list-disc list-inside space-y-1 text-foreground/90">
-                    {user.travelHistory.map((trip) => (
+                    {user.travelHistory.filter(th => th.trim() !== '').map((trip) => (
                       <li key={trip}>{trip}</li>
                     ))}
                   </ul>
@@ -188,9 +206,9 @@ export default function ProfilePage() {
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <MapPin className="mr-2 h-5 w-5" /> Other General Preferences
                 </h3>
-                 {user.preferences && user.preferences.length > 0 ? (
+                 {user.preferences && user.preferences.length > 0 && user.preferences.some(p => p.trim() !== '') ? (
                   <div className="flex flex-wrap gap-2">
-                    {user.preferences.map((preference) => (
+                    {user.preferences.filter(p => p.trim() !== '').map((preference) => (
                       <Badge key={preference} variant="outline" className="text-sm px-3 py-1">{preference}</Badge>
                     ))}
                   </div>

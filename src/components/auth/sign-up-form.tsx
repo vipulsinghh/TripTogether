@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import modular auth functions
+import { app } from '../../lib/firebase'; // Import the Firebase app instance
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }),
@@ -37,20 +39,32 @@ export default function SignUpForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Sign Up Data:", values);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('isUserSignedIn', 'true');
-      localStorage.setItem('userProfilePreferencesSet', 'false'); 
+    try {
+      const auth = getAuth(app); // Get the auth instance
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      // const user = userCredential.user; // uncomment if you need user object
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('isUserSignedIn', 'true');
+        localStorage.setItem('userProfilePreferencesSet', 'false');
+        localStorage.setItem('userName', values.name);
+        localStorage.setItem('userEmail', values.email);
+      }
+
+      toast({
+        title: "Account Created!",
+        description: "Welcome! Please complete your profile for the best experience.",
+      });
+
+      router.push('/discover'); // Redirect to discover page
+    } catch (error: any) {
+      console.error("Sign Up Error:", error.message);
+      toast({
+        title: "Sign Up Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
-    
-    toast({
-      title: "Account Created!",
-      description: "Welcome to RoamMate! Please complete your profile for the best experience.",
-    });
-    
-    router.push('/discover'); 
   }
 
   return (
@@ -65,7 +79,7 @@ export default function SignUpForm() {
               <div className="relative">
                 <User className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input placeholder="Your Name" {...field} className="pl-8 sm:pl-10" />
+                  <Input placeholder="Your Name" {...field} className="pl-8 sm:pl-10 text-sm" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -81,7 +95,7 @@ export default function SignUpForm() {
               <div className="relative">
                 <Mail className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} className="pl-8 sm:pl-10" />
+                  <Input placeholder="you@example.com" {...field} className="pl-8 sm:pl-10 text-sm" />
                 </FormControl>
               </div>
               <FormMessage />
@@ -97,7 +111,7 @@ export default function SignUpForm() {
               <div className="relative">
                 <Lock className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="pl-8 sm:pl-10" />
+                  <Input type="password" placeholder="••••••••" {...field} className="pl-8 sm:pl-10 text-sm" />
                 </FormControl>
               </div>
               <FormMessage />
