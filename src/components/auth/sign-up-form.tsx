@@ -40,16 +40,18 @@ export default function SignUpForm() {
     // Simulate API call
     console.log("Sign Up Data:", values);
     await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isUserSignedIn', 'true');
+      localStorage.setItem('userProfilePreferencesSet', 'false'); // New user, profile not set
+    }
+    
     toast({
       title: "Account Created!",
       description: "Welcome to RoamMate! Please complete your profile.",
     });
     
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('isUserSignedIn', 'true');
-    }
-    router.push('/discover'); 
-    // router.push('/profile-setup') or similar
+    router.push('/profile'); // Redirect to profile page first
     // form.reset(); // Optionally reset form
   }
 

@@ -2,7 +2,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,32 +19,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText, ImagePlus, Tag, Mountain, Palmtree, Sun, MountainSnow, Snowflake, Landmark, Palette, Building2, Bike, Navigation } from 'lucide-react';
+import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText, ImagePlus, Tag, Mountain, Palmtree, Sun, MountainSnow, Snowflake, Landmark, Palette, Building2, Bike, Navigation, Briefcase, ThumbsUp, Zap as ZapIcon, Settings2, Cigarette, Wine, Users2 as GroupIcon, Cake, CheckSquare as CheckSquareIcon } from 'lucide-react';
 import { useState } from "react";
+import { 
+  smokingPolicyOptions, 
+  alcoholPolicyOptions, 
+  genderPreferenceOptions, 
+  ageGroupOptions, 
+  travelerTypeOptions,
+  categoriesList as appCategories // Renamed to avoid conflict
+} from "@/types"; 
 
-// Define categories similar to DiscoverPage for consistency
-const availableCategories = [
-  { id: 'Mountains', label: 'Mountains', icon: Mountain },
-  { id: 'Beach', label: 'Beach', icon: Palmtree },
-  { id: 'Desert', label: 'Desert', icon: Sun },
-  { id: 'Hill Stations', label: 'Hill Stations', icon: MountainSnow },
-  { id: 'Ice & Snow', label: 'Ice & Snow', icon: Snowflake },
-  { id: 'Historical', label: 'Historical', icon: Landmark },
-  { id: 'Cultural', label: 'Cultural', icon: Palette },
-  { id: 'City Break', label: 'City Break', icon: Building2 },
-  { id: 'Adventure', label: 'Adventure', icon: Bike },
-  { id: 'Road Trip', label: 'Road Trip', icon: Navigation },
-];
+// Match Lucide icons to category IDs from appCategories
+const categoryIconComponents: { [key: string]: React.ElementType } = {
+  'Mountains': Mountain,
+  'Beach': Palmtree,
+  'Desert': Sun,
+  'Hill Stations': MountainSnow,
+  'Ice & Snow': Snowflake,
+  'Historical': Landmark,
+  'Cultural': Palette,
+  'City Break': Building2,
+  'Adventure': Bike,
+  'Road Trip': Navigation,
+  'Wildlife': Briefcase, 
+  'Wellness': ThumbsUp, 
+  'Foodie': ZapIcon, 
+  'Nightlife': ZapIcon, 
+  'Budget': DollarSign,
+};
+
 
 const tripFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
   destination: z.string().min(3, { message: "Destination must be at least 3 characters." }),
   startDate: z.date({ required_error: "Start date is required." }),
   endDate: z.date({ required_error: "End date is required." }),
-  description: z.string().min(20, { message: "Description must be at least 20 characters." }).max(500),
+  description: z.string().min(20, { message: "Description must be at least 20 characters." }).max(1000, "Description max 1000 chars"),
   categories: z.array(z.string()).min(1, { message: "Please select at least one category." }),
   budget: z.string().optional(),
   maxGroupSize: z.coerce.number().min(2, "Group size must be at least 2").max(20, "Max group size is 20"),
@@ -55,7 +70,13 @@ const tripFormSchema = z.object({
     (files) => !files || Array.from(files).every(file => file.size <= 2 * 1024 * 1024),
     "Each image must be less than 2MB."
   ),
-}).refine(data => !data.endDate || !data.startDate || data.endDate >= data.startDate, {
+  // New filterable properties for the trip
+  smokingPolicy: z.enum(['any', 'permitted', 'not_permitted', 'outside_only']).default('any'),
+  alcoholPolicy: z.enum(['any', 'permitted', 'not_permitted', 'socially']).default('any'),
+  genderPreference: z.enum(['any', 'men_only', 'women_only', 'mixed']).default('any'),
+  targetAgeGroup: z.enum(['any', '18-25', '26-35', '36-45', '45+']).default('any'),
+  targetTravelerType: z.enum(['any', 'singles', 'couples', 'family', 'friends', 'backpackers', 'luxury']).default('any'),
+}).refine(data => data.endDate >= data.startDate, {
   message: "End date cannot be before start date.",
   path: ["endDate"], 
 });
@@ -75,11 +96,18 @@ export default function TripCreationForm() {
       categories: [],
       budget: "",
       maxGroupSize: 4,
+      smokingPolicy: 'any',
+      alcoholPolicy: 'any',
+      genderPreference: 'any',
+      targetAgeGroup: 'any',
+      targetTravelerType: 'any',
     },
   });
 
   async function onSubmit(data: TripFormValues) {
     console.log("Trip Creation Data:", data);
+    // In a real app, you would convert imageFiles to Data URIs or upload them
+    // For now, just logging names
     if (data.imageFiles) {
       console.log("Selected Images:", Array.from(data.imageFiles).map(file => file.name));
     }
@@ -231,7 +259,7 @@ export default function TripCreationForm() {
                   {...field}
                 />
               </FormControl>
-              <FormDescription>Max 500 characters.</FormDescription>
+              <FormDescription>Max 1000 characters.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -249,7 +277,9 @@ export default function TripCreationForm() {
                 </FormDescription>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {availableCategories.map((category) => (
+                {appCategories.map((category) => {
+                  const IconComponent = categoryIconComponents[category.id] || Tag;
+                  return (
                   <FormField
                     key={category.id}
                     control={form.control}
@@ -258,7 +288,7 @@ export default function TripCreationForm() {
                       return (
                         <FormItem
                           key={category.id}
-                          className="flex flex-row items-center space-x-2 space-y-0 bg-muted/50 p-3 rounded-md border"
+                          className="flex flex-row items-center space-x-2 space-y-0 bg-muted/50 p-3 rounded-md border hover:bg-muted transition-colors"
                         >
                           <FormControl>
                             <Checkbox
@@ -274,26 +304,25 @@ export default function TripCreationForm() {
                               }}
                             />
                           </FormControl>
-                          <FormLabel className="font-normal flex items-center cursor-pointer">
-                             <category.icon className="mr-2 h-4 w-4 text-primary" />
-                            {category.label}
+                          <FormLabel className="font-normal flex items-center cursor-pointer text-sm">
+                             <IconComponent className="mr-2 h-4 w-4 text-primary" />
+                            {category.name}
                           </FormLabel>
                         </FormItem>
                       );
                     }}
                   />
-                ))}
+                )})}
               </div>
               <FormMessage />
             </FormItem>
           )}
         />
 
-
         <FormField
           control={form.control}
           name="imageFiles"
-          render={() => ( // field is not directly used here, but we need to manage its value
+          render={() => ( 
             <FormItem>
               <FormLabel className="flex items-center"><ImagePlus className="mr-2 h-4 w-4 text-muted-foreground" />Trip Images (Optional)</FormLabel>
               <FormControl>
@@ -311,10 +340,96 @@ export default function TripCreationForm() {
                 </FormDescription>
               )}
               <FormDescription>Upload up to 5 images (max 2MB each). PNG, JPG, GIF accepted.</FormDescription>
-              <FormMessage /> {/* This will show errors from the schema refinement */}
+              <FormMessage />
             </FormItem>
           )}
         />
+
+        <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+            <h3 className="text-lg font-semibold flex items-center"><Settings2 className="mr-2 h-5 w-5 text-primary" />Trip Policies & Target Audience</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+                <FormField
+                    control={form.control}
+                    name="smokingPolicy"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="flex items-center"><Cigarette className="mr-2 h-4 w-4 text-muted-foreground"/>Smoking Policy for Trip</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select smoking policy" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            {smokingPolicyOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="alcoholPolicy"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="flex items-center"><Wine className="mr-2 h-4 w-4 text-muted-foreground"/>Alcohol Policy for Trip</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select alcohol policy" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            {alcoholPolicyOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="genderPreference"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="flex items-center"><GroupIcon className="mr-2 h-4 w-4 text-muted-foreground"/>Target Gender Mix</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select target gender mix" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            {genderPreferenceOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="targetAgeGroup"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="flex items-center"><Cake className="mr-2 h-4 w-4 text-muted-foreground"/>Target Age Group</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select target age group" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            {ageGroupOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="targetTravelerType"
+                    render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                        <FormLabel className="flex items-center"><CheckSquareIcon className="mr-2 h-4 w-4 text-muted-foreground"/>Target Traveler Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select target traveler type" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            {travelerTypeOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                        </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+            </div>
+        </div>
 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -325,7 +440,7 @@ export default function TripCreationForm() {
               <FormItem>
                 <FormLabel className="flex items-center"><DollarSign className="mr-2 h-4 w-4 text-muted-foreground" />Estimated Budget (Optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., $1000 - $1500" {...field} />
+                  <Input placeholder="e.g., $1000 - $1500 or specific amount" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -2,99 +2,164 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { TripCardProps } from '@/components/core/trip-card';
+import type { Trip } from '@/types'; // Use the main Trip type
 import TripCard from '@/components/core/trip-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag } from 'lucide-react';
+import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag, Users as UsersIcon, Briefcase, ThumbsUp, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { categoriesList as appCategories } from '@/types'; // Import categories list
 
-const categoriesList = [
-  { name: 'Mountains', icon: Mountain, dataAiHint: 'mountains landscape' },
-  { name: 'Beach', icon: Palmtree, dataAiHint: 'beach sunset' },
-  { name: 'Desert', icon: Sun, dataAiHint: 'desert dunes' },
-  { name: 'Hill Stations', icon: MountainSnow, dataAiHint: 'hill station' },
-  { name: 'Ice & Snow', icon: Snowflake, dataAiHint: 'snowy landscape' },
-  { name: 'Historical', icon: Landmark, dataAiHint: 'historical ruins' },
-  { name: 'Cultural', icon: Palette, dataAiHint: 'cultural festival' },
-  { name: 'City Break', icon: Building2, dataAiHint: 'city skyline' },
-  { name: 'Adventure', icon: Bike, dataAiHint: 'adventure sport' },
-  { name: 'Road Trip', icon: Navigation, dataAiHint: 'road trip scenic' },
-];
-
-const initialTrips: TripCardProps[] = [
+const initialTrips: Trip[] = [
   {
     id: '1',
     title: 'Bali Adventure Week',
     destination: 'Bali, Indonesia',
-    dates: 'Oct 10 - Oct 17, 2024',
+    startDate: new Date('2024-10-10'),
+    endDate: new Date('2024-10-17'),
     description: 'Explore volcanoes, surf, and find your zen in beautiful Bali. We will visit waterfalls, rice paddies and enjoy local cuisine.',
     imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'bali landscape',
-    memberCount: 5,
+    maxGroupSize: 8,
+    currentMemberCount: 5,
     budget: '$1000 - $1500',
     categories: ['Beach', 'Adventure', 'Cultural'],
+    createdById: 'user1',
+    creatorName: 'Admin User',
+    smokingPolicy: 'not_permitted',
+    alcoholPolicy: 'socially',
+    genderPreference: 'mixed',
+    targetAgeGroup: '18-25',
+    targetTravelerType: 'backpackers',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: '2',
     title: 'Tokyo Tech & Tradition',
     destination: 'Tokyo, Japan',
-    dates: 'Nov 5 - Nov 12, 2024',
+    startDate: new Date('2024-11-05'),
+    endDate: new Date('2024-11-12'),
     description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo. A mix of modern marvels and serene shrines.',
     imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'tokyo city',
-    memberCount: 3,
+    maxGroupSize: 6,
+    currentMemberCount: 3,
     budget: '$2000 - $2500',
     categories: ['City Break', 'Cultural', 'Historical'],
+    createdById: 'user2',
+    creatorName: 'JapanLover',
+    smokingPolicy: 'any',
+    alcoholPolicy: 'permitted',
+    genderPreference: 'any',
+    targetAgeGroup: '26-35',
+    targetTravelerType: 'friends',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: '3',
     title: 'Parisian Charm Getaway',
     destination: 'Paris, France',
-    dates: 'Dec 1 - Dec 7, 2024',
+    startDate: new Date('2024-12-01'),
+    endDate: new Date('2024-12-07'),
     description: 'Indulge in art, cuisine, and romance in the City of Lights. Visit museums, enjoy cafes, and stroll along the Seine.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
+    imageUrls: ['https://placehold.co/600x400.png'],
     dataAiHint: 'paris romance',
-    memberCount: 2,
+    maxGroupSize: 4,
+    currentMemberCount: 2,
     budget: '$1800 - $2200',
-    categories: ['City Break', 'Cultural', 'Historical'],
+    categories: ['City Break', 'Cultural', 'Historical', 'Foodie'],
+     createdById: 'user3',
+    creatorName: 'ArtBuff',
+    smokingPolicy: 'not_permitted',
+    alcoholPolicy: 'socially',
+    genderPreference: 'couples',
+    targetAgeGroup: 'any',
+    targetTravelerType: 'couples',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
-  {
+    {
     id: '4',
     title: 'Andes Mountain Trek',
     destination: 'Peru',
-    dates: 'Jan 10 - Jan 20, 2025',
+    startDate: new Date('2025-01-10'),
+    endDate: new Date('2025-01-20'),
     description: 'Challenging trek through the stunning Andes mountains. Experience breathtaking views and ancient Incan trails.',
     imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'andes peru',
-    memberCount: 4,
+    maxGroupSize: 10,
+    currentMemberCount: 4,
     budget: '$2200 - $2800',
     categories: ['Mountains', 'Adventure', 'Historical'],
+    createdById: 'user4',
+    smokingPolicy: 'not_permitted', alcoholPolicy: 'not_permitted', genderPreference: 'mixed', targetAgeGroup: '18-35', targetTravelerType: 'adventure',
+    createdAt: new Date(), updatedAt: new Date(),
   },
   {
     id: '5',
     title: 'Sahara Desert Expedition',
     destination: 'Morocco',
-    dates: 'Feb 15 - Feb 22, 2025',
+    startDate: new Date('2025-02-15'),
+    endDate: new Date('2025-02-22'),
     description: 'Camel rides, stargazing, and Berber culture in the vast Sahara desert. Sleep under the stars in a desert camp.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
+    imageUrls: ['https://placehold.co/600x400.png'],
     dataAiHint: 'sahara morocco',
-    memberCount: 6,
+    maxGroupSize: 12,
+    currentMemberCount: 6,
     budget: '$1500 - $2000',
     categories: ['Desert', 'Adventure', 'Cultural'],
+    createdById: 'user5',
+    smokingPolicy: 'any', alcoholPolicy: 'socially', genderPreference: 'any', targetAgeGroup: 'any', targetTravelerType: 'friends',
+    createdAt: new Date(), updatedAt: new Date(),
   },
 ];
 
+// Match Lucide icons to category IDs
+const categoryIcons: { [key: string]: React.ElementType } = {
+  'Mountains': Mountain,
+  'Beach': Palmtree,
+  'Desert': Sun,
+  'Hill Stations': MountainSnow,
+  'Ice & Snow': Snowflake,
+  'Historical': Landmark,
+  'Cultural': Palette,
+  'City Break': Building2,
+  'Adventure': Bike,
+  'Road Trip': Navigation,
+  'Wildlife': Briefcase, // Placeholder, consider a better icon like PawPrint if available or custom SVG
+  'Wellness': ThumbsUp, // Placeholder, consider Spa icon
+  'Foodie': Zap, // Placeholder, consider Utensils icon
+  'Nightlife': Zap, // Placeholder, consider GlassWater or similar
+  'Budget': DollarSign, // Placeholder, better: PiggyBank
+};
+
 
 export default function DiscoverPage() {
-  const [trips, setTrips] = useState<TripCardProps[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    setTrips(initialTrips);
-  }, []);
+    // Profile completion check
+    if (typeof window !== 'undefined') {
+      const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
+      const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
+      if (signedIn && !preferencesSet) {
+        router.replace('/profile'); // Redirect if profile not complete
+        return;
+      }
+      if (!signedIn) {
+        router.replace('/'); // Redirect to landing if not signed in
+        return;
+      }
+    }
+    setTrips(initialTrips); // Load initial trips if profile complete
+  }, [router]);
   
   const handleResetFilters = () => {
     setSearchTerm('');
@@ -138,17 +203,20 @@ export default function DiscoverPage() {
         </div>
         <ScrollArea className="w-full whitespace-nowrap rounded-md">
           <div className="flex space-x-4 pb-4">
-            {categoriesList.map((category) => (
-              <Button 
-                key={category.name} 
-                variant={selectedCategory === category.name ? "default" : "outline"}
-                className="flex flex-col items-center justify-center h-28 w-28 p-2 rounded-lg shadow-md transition-all hover:shadow-lg"
-                onClick={() => handleCategorySelect(category.name)}
-              >
-                <category.icon className={`h-10 w-10 mb-2 ${selectedCategory === category.name ? 'text-primary-foreground' : 'text-primary'}`} />
-                <span className="text-xs font-medium text-center">{category.name}</span>
-              </Button>
-            ))}
+            {appCategories.map((category) => {
+              const IconComponent = categoryIcons[category.id] || Tag; // Fallback icon
+              return (
+                <Button 
+                  key={category.id} 
+                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  className="flex flex-col items-center justify-center h-28 w-28 p-2 rounded-lg shadow-md transition-all hover:shadow-lg"
+                  onClick={() => handleCategorySelect(category.id)}
+                >
+                  <IconComponent className={`h-10 w-10 mb-2 ${selectedCategory === category.id ? 'text-primary-foreground' : 'text-primary'}`} />
+                  <span className="text-xs font-medium text-center">{category.name}</span>
+                </Button>
+              );
+            })}
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -169,11 +237,12 @@ export default function DiscoverPage() {
         {filteredTrips.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredTrips.map((trip) => (
-              <TripCard key={trip.id} {...trip} />
+              <TripCard key={trip.id} trip={trip} />
             ))}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[200px] text-center py-10">
+             <UsersIcon className="h-16 w-16 text-muted-foreground mb-4" />
             <p className="text-xl text-muted-foreground mb-4">No trips match your current search or filters.</p>
             <Button onClick={handleResetFilters} variant="outline">
               <RotateCcw className="mr-2 h-4 w-4" />

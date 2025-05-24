@@ -3,32 +3,43 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Plane, Compass, LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Plane, Compass, LogOut, UserCircle, Edit } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [profilePreferencesSet, setProfilePreferencesSet] = useState(false);
   const [isClient, setIsClient] = useState(false);
+
+  const updateAuthState = () => {
+    if (typeof window !== 'undefined') {
+      const signedInStatus = localStorage.getItem('isUserSignedIn') === 'true';
+      const preferencesSetStatus = localStorage.getItem('userProfilePreferencesSet') === 'true';
+      setIsSignedIn(signedInStatus);
+      setProfilePreferencesSet(preferencesSetStatus);
+
+      // Profile completion enforcement
+      if (signedInStatus && !preferencesSetStatus && pathname !== '/profile' && pathname !== '/' && !pathname.startsWith('/auth')) {
+        router.replace('/profile');
+      }
+    }
+  };
 
   useEffect(() => {
     setIsClient(true);
-    if (typeof window !== 'undefined') {
-      setIsSignedIn(localStorage.getItem('isUserSignedIn') === 'true');
-    }
-  }, []);
+    updateAuthState(); // Initial check
+  }, [pathname, router]); // Re-check on pathname change to enforce redirection
 
-  // Effect to update isSignedIn when localStorage changes (e.g. from another tab, or dev tools)
+  // Effect to update isSignedIn when localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
-      if (typeof window !== 'undefined') {
-        setIsSignedIn(localStorage.getItem('isUserSignedIn') === 'true');
-      }
+      updateAuthState();
     };
 
     window.addEventListener('storage', handleStorageChange);
-    // Check on focus as 'storage' event might not fire for same tab
     window.addEventListener('focus', handleStorageChange); 
 
     return () => {
@@ -41,11 +52,14 @@ export default function Header() {
   const handleSignOut = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('isUserSignedIn');
+      localStorage.removeItem('userProfilePreferencesSet'); // Clear this too
     }
-    setIsSignedIn(false); // Update state immediately
+    setIsSignedIn(false);
+    setProfilePreferencesSet(false);
     router.push('/');
-    // router.refresh(); // May not be strictly necessary after push to /
   };
+  
+  const canAccessMainApp = isSignedIn && profilePreferencesSet;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -55,22 +69,36 @@ export default function Header() {
           <span className="text-2xl font-bold text-gradient">RoamMate</span>
         </Link>
         <nav className="flex items-center gap-1 md:gap-2">
-          <Button variant="ghost" asChild>
-            <Link href="/discover">
-              <Compass className="md:mr-2 h-4 w-4" /> <span className="hidden md:inline">Discover</span>
-            </Link>
-          </Button>
-          {isClient && isSignedIn && (
+          {canAccessMainApp && (
             <Button variant="ghost" asChild>
-              <Link href="/profile">Profile</Link>
+              <Link href="/discover">
+                <Compass className="md:mr-2 h-4 w-4" /> <span className="hidden md:inline">Discover</span>
+              </Link>
             </Button>
           )}
-          <Button variant="ghost" asChild>
-            <Link href="/groups">Groups</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/create-trip">Create Trip</Link>
-          </Button>
+          
+          {isClient && isSignedIn && (
+            profilePreferencesSet ? (
+              <Button variant="ghost" asChild>
+                <Link href="/profile"><UserCircle className="md:mr-2 h-4 w-4" /><span className="hidden md:inline">Profile</span></Link>
+              </Button>
+            ) : (
+              <Button variant="ghost" asChild>
+                <Link href="/profile"><Edit className="md:mr-2 h-4 w-4 text-destructive" /><span className="hidden md:inline text-destructive">Complete Profile</span></Link>
+              </Button>
+            )
+          )}
+
+          {canAccessMainApp && (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href="/groups">Groups</Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link href="/create-trip">Create Trip</Link>
+              </Button>
+            </>
+          )}
           
           {isClient && !isSignedIn && (
             <div className="hidden md:flex items-center gap-2">
@@ -88,7 +116,6 @@ export default function Header() {
               <span className="hidden md:inline">Sign Out</span>
             </Button>
           )}
-          {/* Add a mobile menu trigger here if needed in the future to show sign out / profile conditionally */}
         </nav>
       </div>
     </header>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,8 +16,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { PlusCircle, Trash2, Save } from 'lucide-react';
+import { PlusCircle, Trash2, Save, UserCog, Cigarette, Wine, Users, Cake, CheckSquare } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { 
+  userSmokingPreferenceOptions, 
+  userAlcoholPreferenceOptions, 
+  genderPreferenceOptions, 
+  ageGroupOptions, 
+  travelerTypeOptions 
+} from "@/types";
+
 
 const profileFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -24,18 +35,23 @@ const profileFormSchema = z.object({
   interests: z.array(z.object({ value: z.string().min(1, "Interest cannot be empty") })).optional(),
   travelHistory: z.array(z.object({ value: z.string().min(1, "Travel history item cannot be empty") })).optional(),
   preferences: z.array(z.object({ value: z.string().min(1, "Preference cannot be empty") })).optional(),
-  // avatarUrl: z.string().url().optional(), // Future: file upload
+  smokingPolicy: z.enum(['any', 'non_smoker', 'smoker_friendly', 'flexible_smoking']).default('any'),
+  alcoholPolicy: z.enum(['any', 'dry_trip', 'social_drinker', 'party_friendly']).default('any'),
+  preferredGenderMix: z.enum(['any', 'men_only', 'women_only', 'mixed']).default('any'),
+  preferredAgeGroup: z.enum(['any', '18-25', '26-35', '36-45', '45+']).default('any'),
+  preferredTravelerType: z.enum(['any', 'singles', 'couples', 'family', 'friends', 'backpackers', 'luxury']).default('any'),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 interface UserProfileFormProps {
-  defaultValues?: Partial<ProfileFormValues & { email?: string; avatarUrl?: string }>; // email and avatarUrl are not directly editable here but might be part of defaultValues
-  onSave?: (data: ProfileFormValues) => void;
+  defaultValues?: Partial<ProfileFormValues & { email?: string; avatarUrl?: string }>;
+  onSaveSuccess?: () => void; // Callback for successful save
 }
 
-export default function UserProfileForm({ defaultValues, onSave }: UserProfileFormProps) {
+export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserProfileFormProps) {
   const { toast } = useToast();
+  const router = useRouter();
   
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -45,33 +61,42 @@ export default function UserProfileForm({ defaultValues, onSave }: UserProfileFo
       interests: defaultValues?.interests?.map(i => ({ value: i })) || [{ value: "" }],
       travelHistory: defaultValues?.travelHistory?.map(th => ({ value: th })) || [{ value: "" }],
       preferences: defaultValues?.preferences?.map(p => ({ value: p })) || [{ value: "" }],
+      smokingPolicy: defaultValues?.smokingPolicy || 'any',
+      alcoholPolicy: defaultValues?.alcoholPolicy || 'any',
+      preferredGenderMix: defaultValues?.preferredGenderMix || 'any',
+      preferredAgeGroup: defaultValues?.preferredAgeGroup || 'any',
+      preferredTravelerType: defaultValues?.preferredTravelerType || 'any',
     },
   });
 
   const { fields: interestFields, append: appendInterest, remove: removeInterest } = useFieldArray({
-    control: form.control,
-    name: "interests",
+    control: form.control, name: "interests",
   });
   const { fields: travelHistoryFields, append: appendTravelHistory, remove: removeTravelHistory } = useFieldArray({
-    control: form.control,
-    name: "travelHistory",
+    control: form.control, name: "travelHistory",
   });
   const { fields: preferenceFields, append: appendPreference, remove: removePreference } = useFieldArray({
-    control: form.control,
-    name: "preferences",
+    control: form.control, name: "preferences",
   });
 
 
   async function onSubmit(data: ProfileFormValues) {
-    // Simulate API call
     console.log("Profile Data:", data);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userProfilePreferencesSet', 'true');
+    }
+
     toast({
       title: "Profile Updated!",
       description: "Your travel profile has been successfully saved.",
     });
-    if (onSave) {
-      onSave(data);
+
+    if (onSaveSuccess) {
+      onSaveSuccess(); // Call the callback passed from parent
+    } else {
+      router.push('/discover'); // Default redirect if no callback
     }
   }
 
@@ -102,6 +127,7 @@ export default function UserProfileForm({ defaultValues, onSave }: UserProfileFo
                 <Textarea
                   placeholder="Tell us a bit about yourself and your travel style..."
                   className="resize-none"
+                  rows={4}
                   {...field}
                 />
               </FormControl>
@@ -110,22 +136,137 @@ export default function UserProfileForm({ defaultValues, onSave }: UserProfileFo
             </FormItem>
           )}
         />
+        
+        <h3 className="text-lg font-semibold border-b pb-2 flex items-center"><UserCog className="mr-2 h-5 w-5 text-primary" />Travel Style & Preferences</h3>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="smokingPolicy"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center"><Cigarette className="mr-2 h-4 w-4 text-muted-foreground" />Your Smoking Stance</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue placeholder="Select your smoking preference" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {userSmokingPreferenceOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>How do you feel about smoking in travel groups?</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="alcoholPolicy"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center"><Wine className="mr-2 h-4 w-4 text-muted-foreground" />Your Alcohol Stance</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue placeholder="Select your alcohol preference" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {userAlcoholPreferenceOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>Your comfort level with alcohol in travel groups.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+           <FormField
+            control={form.control}
+            name="preferredGenderMix"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center"><Users className="mr-2 h-4 w-4 text-muted-foreground" />Preferred Group Gender Mix</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue placeholder="Select gender mix preference" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {genderPreferenceOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="preferredAgeGroup"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center"><Cake className="mr-2 h-4 w-4 text-muted-foreground" />Preferred Companion Age Group</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue placeholder="Select preferred age group" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {ageGroupOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        <FormField
+            control={form.control}
+            name="preferredTravelerType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center"><CheckSquare className="mr-2 h-4 w-4 text-muted-foreground" />Preferred Traveler Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue placeholder="Select preferred traveler type" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {travelerTypeOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>What kind of travelers or trips do you prefer?</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
 
         {/* Interests */}
         <div>
-          <FormLabel>Interests</FormLabel>
+          <FormLabel className="text-md font-medium">Interests</FormLabel>
+          <FormDescription>Add your travel interests (e.g., Hiking, Photography, Foodie).</FormDescription>
           {interestFields.map((field, index) => (
             <FormField
               control={form.control}
               key={field.id}
               name={`interests.${index}.value`}
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2 mt-1">
+                <FormItem className="flex items-center gap-2 mt-2">
                   <FormControl>
-                    <Input placeholder="e.g., Hiking, Photography" {...field} />
+                    <Input placeholder="e.g., Hiking" {...field} />
                   </FormControl>
                   {interestFields.length > 1 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeInterest(index)}>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeInterest(index)} aria-label="Remove interest">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
@@ -146,19 +287,20 @@ export default function UserProfileForm({ defaultValues, onSave }: UserProfileFo
         
         {/* Travel History */}
         <div>
-          <FormLabel>Travel History</FormLabel>
+          <FormLabel className="text-md font-medium">Travel History</FormLabel>
+          <FormDescription>List some places you've been (e.g., Paris 2022, Japan 2023).</FormDescription>
           {travelHistoryFields.map((field, index) => (
             <FormField
               control={form.control}
               key={field.id}
               name={`travelHistory.${index}.value`}
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2 mt-1">
+                <FormItem className="flex items-center gap-2 mt-2">
                   <FormControl>
-                    <Input placeholder="e.g., Paris 2022, Japan 2023" {...field} />
+                    <Input placeholder="e.g., Paris 2022" {...field} />
                   </FormControl>
                   {travelHistoryFields.length > 1 && (
-                     <Button type="button" variant="ghost" size="icon" onClick={() => removeTravelHistory(index)}>
+                     <Button type="button" variant="ghost" size="icon" onClick={() => removeTravelHistory(index)} aria-label="Remove travel history item">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
@@ -177,21 +319,22 @@ export default function UserProfileForm({ defaultValues, onSave }: UserProfileFo
           </Button>
         </div>
 
-        {/* Preferences */}
+        {/* General Preferences */}
         <div>
-          <FormLabel>Travel Preferences</FormLabel>
+          <FormLabel className="text-md font-medium">Other Preferences</FormLabel>
+           <FormDescription>Any other specific preferences (e.g., Budget-friendly, Adventure focus).</FormDescription>
           {preferenceFields.map((field, index) => (
             <FormField
               control={form.control}
               key={field.id}
               name={`preferences.${index}.value`}
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2 mt-1">
+                <FormItem className="flex items-center gap-2 mt-2">
                   <FormControl>
-                    <Input placeholder="e.g., Budget-friendly, Adventure" {...field} />
+                    <Input placeholder="e.g., Budget-friendly" {...field} />
                   </FormControl>
                   {preferenceFields.length > 1 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removePreference(index)}>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removePreference(index)} aria-label="Remove preference">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}

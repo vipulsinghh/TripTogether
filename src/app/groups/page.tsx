@@ -2,119 +2,172 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import TripCard, { type TripCardProps } from '@/components/core/trip-card';
+import TripCard from '@/components/core/trip-card';
+import type { Trip } from '@/types'; // Use the main Trip type
 import FilterPanel from '@/components/core/filter-panel';
-import { Loader2 } from 'lucide-react'; // For loading state
+import { Loader2, Users as UsersIcon } from 'lucide-react'; // For loading state and placeholder
+import { useRouter } from 'next/navigation';
 
-const mockGroups: TripCardProps[] = [
+const mockGroups: Trip[] = [ // Changed to use Trip type
   {
     id: 'group1',
     title: 'Southeast Asia Backpackers',
     destination: 'Thailand, Vietnam, Cambodia',
-    dates: 'Nov 2024 - Jan 2025',
+    startDate: new Date('2024-11-01'),
+    endDate: new Date('2025-01-31'),
     description: 'Looking for adventurous souls to explore SEA for 2 months. Flexible itinerary, open to all friendly travelers. Focus on cultural immersion and street food.',
     imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'asia temple',
-    memberCount: 3,
+    maxGroupSize: 10,
+    currentMemberCount: 3,
     budget: '$1500/month',
-    categories: ['Adventure', 'Cultural', 'Beach'],
-    // Mock filterable properties
-    // ageRange: [22, 35], 
-    // smoking: 'not_permitted',
-    // alcohol: 'permitted',
-    // genderPref: 'mixed',
-    // travelerType: 'friends',
+    categories: ['Adventure', 'Cultural', 'Beach', 'Budget'],
+    createdById: 'user_creator1',
+    smokingPolicy: 'outside_only',
+    alcoholPolicy: 'socially',
+    genderPreference: 'mixed',
+    targetAgeGroup: '18-25',
+    targetTravelerType: 'backpackers',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: 'group2',
     title: 'European Cities Tour',
     destination: 'Paris, Rome, Berlin',
-    dates: 'Spring 2025',
+    startDate: new Date('2025-04-01'),
+    endDate: new Date('2025-04-20'),
     description: 'Culture vultures unite! Join us for a whirlwind tour of Europe\'s iconic cities. Museum visits, historical walks, and fine dining. Couples and singles welcome.',
     imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'europe city',
-    memberCount: 4,
+    maxGroupSize: 8,
+    currentMemberCount: 4,
     budget: '$2500 - $3000',
-    categories: ['City Break', 'Historical', 'Cultural'],
+    categories: ['City Break', 'Historical', 'Cultural', 'Foodie'],
+    createdById: 'user_creator2',
+    smokingPolicy: 'not_permitted',
+    alcoholPolicy: 'permitted',
+    genderPreference: 'any',
+    targetAgeGroup: '26-35',
+    targetTravelerType: 'friends',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: 'group3',
     title: 'Andes Trekking Expedition',
     destination: 'Peru & Bolivia',
-    dates: 'July 2025',
+    startDate: new Date('2025-07-01'),
+    endDate: new Date('2025-07-20'),
     description: 'High-altitude trekking adventure through the Andes. Experienced hikers preferred. This is a challenging trip for serious adventurers.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
+    imageUrls: ['https://placehold.co/600x400.png'],
     dataAiHint: 'andes mountains',
-    memberCount: 2,
+    maxGroupSize: 6,
+    currentMemberCount: 2,
     budget: '$3000 - $4000',
     categories: ['Mountains', 'Adventure'],
+    createdById: 'user_creator3',
+    smokingPolicy: 'not_permitted',
+    alcoholPolicy: 'not_permitted',
+    genderPreference: 'any',
+    targetAgeGroup: 'any',
+    targetTravelerType: 'adventure',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: 'group4',
     title: 'Family Beach Holiday - Costa Rica',
     destination: 'Costa Rica',
-    dates: 'Aug 2025',
+    startDate: new Date('2025-08-01'),
+    endDate: new Date('2025-08-10'),
     description: 'Fun and relaxing beach holiday for families. Kid-friendly activities, safe environment. No smoking, light alcohol okay.',
     imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
     dataAiHint: 'costa rica beach family',
-    memberCount: 7,
+    maxGroupSize: 12,
+    currentMemberCount: 7,
     budget: '$2000 - $2800',
-    categories: ['Beach', 'Family Friendly'], // Example, assuming TripCardProps will be updated
+    categories: ['Beach', 'Family'], 
+    createdById: 'user_creator4',
+    smokingPolicy: 'not_permitted',
+    alcoholPolicy: 'socially',
+    genderPreference: 'any',
+    targetAgeGroup: 'any',
+    targetTravelerType: 'family',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];
 
 export default function GroupsPage() {
-  const [filteredGroups, setFilteredGroups] = useState<TripCardProps[]>([]);
+  const [filteredGroups, setFilteredGroups] = useState<Trip[]>([]);
   const [filters, setFilters] = useState({
     destination: '',
-    budget: '',
-    dates: '',
-    interests: '',
+    budget: '', // This would ideally be a range or structured object
+    dates: '', // This would ideally be a date range
+    interests: '', // Could be comma-separated string or array
     smokingPolicy: 'any',
     alcoholPolicy: 'any',
     genderPreference: 'any',
-    groupSize: [2, 10],
+    groupSize: [2, 20] as [number, number], // Use specific type for slider
     ageGroup: 'any',
     travelerType: 'any',
   });
   const [isLoading, setIsLoading] = useState(true);
-
+  const router = useRouter();
 
   useEffect(() => {
+     // Profile completion check
+    if (typeof window !== 'undefined') {
+      const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
+      const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
+      if (signedIn && !preferencesSet) {
+        router.replace('/profile'); 
+        return;
+      }
+       if (!signedIn) {
+        router.replace('/');
+        return;
+      }
+    }
+    
+    // Proceed with loading groups if profile is complete or not required for this page logic currently
     setIsLoading(true);
     console.log("Applying filters (GroupsPage):", filters);
-    // Simulate API call / filtering
-    // In a real app, fetch groups based on all filters from the backend
     
-    // Basic filtering example (can be expanded, current mock data doesn't support all new filters directly)
     let tempGroups = mockGroups;
 
     if (filters.destination) {
         tempGroups = tempGroups.filter(group => group.destination.toLowerCase().includes(filters.destination.toLowerCase()));
     }
-    if (filters.budget && filters.budget !== "any") {
-      // This budget filtering is illustrative and needs a robust implementation
-      // For example, if budget is "<1000", you'd parse group.budget to check
+    // Illustrative: Full filtering for new fields would require comparing trip.targetAgeGroup with filters.ageGroup etc.
+    // This is complex with current string-based budget/dates and needs proper data structures.
+    if (filters.smokingPolicy !== 'any') {
+      tempGroups = tempGroups.filter(group => group.smokingPolicy === filters.smokingPolicy || group.smokingPolicy === 'any');
     }
-    if (filters.interests) {
-        //tempGroups = tempGroups.filter(group => group.description.toLowerCase().includes(filters.interests.toLowerCase())); // Or if groups have an 'interests' array
+    if (filters.alcoholPolicy !== 'any') {
+      tempGroups = tempGroups.filter(group => group.alcoholPolicy === filters.alcoholPolicy || group.alcoholPolicy === 'any');
     }
-    // Add more filter logic here based on how group data is structured
-    // For example, if group objects had `ageRange: [min, max]`, `smokingPolicy: 'permitted'`, etc.
-    // tempGroups = tempGroups.filter(group => {
-    //   let matches = true;
-    //   if(filters.smokingPolicy !== 'any' && group.smoking !== filters.smokingPolicy) matches = false;
-    //   // ... other filters
-    //   return matches;
-    // });
+    if (filters.genderPreference !== 'any') {
+      tempGroups = tempGroups.filter(group => group.genderPreference === filters.genderPreference || group.genderPreference === 'any');
+    }
+    if (filters.ageGroup !== 'any') {
+      tempGroups = tempGroups.filter(group => group.targetAgeGroup === filters.ageGroup || group.targetAgeGroup === 'any');
+    }
+    if (filters.travelerType !== 'any') {
+      tempGroups = tempGroups.filter(group => group.targetTravelerType === filters.travelerType || group.targetTravelerType === 'any');
+    }
+    
+    // Filter by group size range
+    tempGroups = tempGroups.filter(group => group.maxGroupSize >= filters.groupSize[0] && group.maxGroupSize <= filters.groupSize[1]);
 
-    // Simulate delay for fetching
+
     setTimeout(() => {
       setFilteredGroups(tempGroups);
       setIsLoading(false);
     }, 500);
      
-  }, [filters]);
+  }, [filters, router]);
 
   const handleFilterChange = (newFilters: any) => {
     setFilters(prevFilters => ({ ...prevFilters, ...newFilters }));
@@ -122,7 +175,7 @@ export default function GroupsPage() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
-      <aside className="lg:w-1/3 xl:w-1/4"> {/* Adjusted width for potentially wider filter panel */}
+      <aside className="lg:w-1/3 xl:w-1/4">
         <FilterPanel onFilterChange={handleFilterChange} />
       </aside>
       <section className="lg:w-2/3 xl:w-3/4">
@@ -135,12 +188,12 @@ export default function GroupsPage() {
         ) : filteredGroups.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {filteredGroups.map((group) => (
-              <TripCard key={group.id} {...group} />
+              <TripCard key={group.id} trip={group} />
             ))}
           </div>
         ) : (
           <div className="text-center py-10 min-h-[300px] flex flex-col justify-center items-center bg-muted/30 rounded-lg shadow">
-            <Users className="h-16 w-16 text-muted-foreground mb-4" />
+            <UsersIcon className="h-16 w-16 text-muted-foreground mb-4" />
             <p className="text-xl text-muted-foreground mb-2">No groups match your current filters.</p>
             <p className="text-sm text-muted-foreground">Try adjusting your search criteria or view all groups.</p>
           </div>
