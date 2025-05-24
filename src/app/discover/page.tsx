@@ -17,7 +17,7 @@ const initialTrips: TripCardProps[] = [
     dates: 'Oct 10 - Oct 17, 2024',
     description: 'Explore volcanoes, surf, and find your zen in beautiful Bali.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'bali beach',
+    dataAiHint: 'bali beach', // Changed from imageHint
     memberCount: 5,
     budget: '$1000 - $1500',
   },
@@ -28,7 +28,7 @@ const initialTrips: TripCardProps[] = [
     dates: 'Nov 5 - Nov 12, 2024',
     description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'tokyo street',
+    dataAiHint: 'tokyo street', // Changed from imageHint
     memberCount: 3,
     budget: '$2000 - $2500',
   },
@@ -39,7 +39,7 @@ const initialTrips: TripCardProps[] = [
     dates: 'Dec 1 - Dec 7, 2024',
     description: 'Indulge in art, cuisine, and romance in the City of Lights.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'paris eiffel',
+    dataAiHint: 'paris eiffel', // Changed from imageHint
     memberCount: 2,
     budget: '$1800 - $2200',
   },
@@ -163,5 +163,3 @@ export default function DiscoverPage() {
     </div>
   );
 }
-
-    

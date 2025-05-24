@@ -10,12 +10,12 @@ export interface TripCardProps {
   dates: string;
   description: string;
   imageUrl: string;
-  imageHint?: string;
+  dataAiHint?: string; // Changed from imageHint
   memberCount: number;
   budget: string;
 }
 
-export default function TripCard({ title, destination, dates, description, imageUrl, imageHint, memberCount, budget }: TripCardProps) {
+export default function TripCard({ title, destination, dates, description, imageUrl, dataAiHint, memberCount, budget }: TripCardProps) {
   return (
     <Card className="w-full max-w-md overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full">
       <CardHeader className="p-0">
@@ -25,7 +25,7 @@ export default function TripCard({ title, destination, dates, description, image
             alt={title}
             layout="fill"
             objectFit="cover"
-            data-ai-hint={imageHint || "travel landscape"}
+            data-ai-hint={dataAiHint || "travel landscape"} // Use dataAiHint
           />
         </div>
       </CardHeader>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -12,7 +13,7 @@ const mockGroups: TripCardProps[] = [
     dates: 'Nov 2024 - Jan 2025',
     description: 'Looking for adventurous souls to explore SEA for 2 months. Flexible itinerary.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'asia temple',
+    dataAiHint: 'asia temple', // Changed from imageHint
     memberCount: 3,
     budget: '$1500/month',
   },
@@ -23,7 +24,7 @@ const mockGroups: TripCardProps[] = [
     dates: 'Spring 2025',
     description: 'Culture vultures unite! Join us for a whirlwind tour of Europe\'s iconic cities.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'europe city',
+    dataAiHint: 'europe city', // Changed from imageHint
     memberCount: 4,
     budget: '$2500 - $3000',
   },
@@ -34,7 +35,7 @@ const mockGroups: TripCardProps[] = [
     dates: 'July 2025',
     description: 'High-altitude trekking adventure through the Andes. Experienced hikers preferred.',
     imageUrl: 'https://placehold.co/600x400.png',
-    imageHint: 'andes mountains',
+    dataAiHint: 'andes mountains', // Changed from imageHint
     memberCount: 2,
     budget: '$3000 - $4000',
   },
