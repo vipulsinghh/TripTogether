@@ -17,8 +17,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { app } from '../../lib/firebase'; // Import the Firebase app instance
 
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Import modular auth functions
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
@@ -37,8 +38,8 @@ export default function SignInForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const auth = getAuth(); // Get auth instance
-      await signInWithEmailAndPassword(auth, values.email, values.password); // Use modular function
+      const auth = getAuth(app); // Pass the app instance here
+      await signInWithEmailAndPassword(auth, values.email, values.password);
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('isUserSignedIn', 'true');
