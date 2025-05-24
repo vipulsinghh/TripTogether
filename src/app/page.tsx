@@ -25,27 +25,29 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-background">
-        <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0">
           <Image
-            src="https://placehold.co/1920x1080.png"
-            alt="Travel collage"
+            src="https://cdn.pixabay.com/photo/2018/10/01/11/45/landscape-3715977_1280.jpg"
+            alt="Beautiful travel landscape"
             layout="fill"
             objectFit="cover"
-            data-ai-hint="travel collage"
+            data-ai-hint="travel landscape"
+            priority // Add priority for LCP images
           />
+           <div className="absolute inset-0 bg-black/40"></div> {/* Overlay for better text contrast */}
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
             <span className="text-gradient">RoamMate:</span> Find Your Travel Tribe
           </h1>
-          <p className="text-xl md:text-2xl text-foreground/80 mb-10 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-white/90 mb-10 max-w-3xl mx-auto">
             Connect with like-minded adventurers, discover unique trips, and plan your next unforgettable journey together.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button size="lg" asChild className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground hover:opacity-90 transition-opacity">
               <Link href="/auth/sign-up">Get Started Free</Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
+            <Button size="lg" variant="outline" className="bg-background/70 hover:bg-background/90 border-white/50 hover:border-white/80 text-foreground" asChild>
               <Link href="/auth/sign-in">Sign In</Link>
             </Button>
           </div>
