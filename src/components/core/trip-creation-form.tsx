@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +21,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText } from 'lucide-react';
+import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText, ImagePlus } from 'lucide-react';
+import { useState } from "react";
 
 const tripFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
@@ -30,12 +32,21 @@ const tripFormSchema = z.object({
   description: z.string().min(20, { message: "Description must be at least 20 characters." }).max(500),
   budget: z.string().optional(),
   maxGroupSize: z.coerce.number().min(2, "Group size must be at least 2").max(20, "Max group size is 20"),
+  imageFiles: z.custom<FileList>().optional().refine(
+    (files) => !files || files.length <= 5, // Max 5 images
+    "You can upload a maximum of 5 images."
+  ).refine(
+    (files) => !files || Array.from(files).every(file => file.size <= 2 * 1024 * 1024), // Max 2MB per image
+    "Each image must be less than 2MB."
+  ),
 });
 
 type TripFormValues = z.infer<typeof tripFormSchema>;
 
 export default function TripCreationForm() {
   const { toast } = useToast();
+  const [selectedFileNames, setSelectedFileNames] = useState<string[]>([]);
+
   const form = useForm<TripFormValues>({
     resolver: zodResolver(tripFormSchema),
     defaultValues: {
@@ -50,13 +61,30 @@ export default function TripCreationForm() {
   async function onSubmit(data: TripFormValues) {
     // Simulate API call
     console.log("Trip Creation Data:", data);
+    if (data.imageFiles) {
+      console.log("Selected Images:", Array.from(data.imageFiles).map(file => file.name));
+    }
     await new Promise(resolve => setTimeout(resolve, 1000));
     toast({
       title: "Trip Created!",
       description: `${data.title} has been successfully created.`,
     });
     form.reset();
+    setSelectedFileNames([]);
   }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const fileNames = Array.from(files).map(file => file.name);
+      // Trigger validation for imageFiles field
+      form.setValue("imageFiles", files, { shouldValidate: true });
+      setSelectedFileNames(fileNames);
+    } else {
+      form.setValue("imageFiles", undefined, { shouldValidate: true });
+      setSelectedFileNames([]);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -102,7 +130,7 @@ export default function TripCreationForm() {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "pl-3 text-left font-normal",
+                          "pl-3 text-left font-normal w-full justify-start",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -120,7 +148,7 @@ export default function TripCreationForm() {
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))} // Disable past dates
+                      disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                       initialFocus
                     />
                   </PopoverContent>
@@ -142,7 +170,7 @@ export default function TripCreationForm() {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "pl-3 text-left font-normal",
+                          "pl-3 text-left font-normal w-full justify-start",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -190,6 +218,33 @@ export default function TripCreationForm() {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="imageFiles"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center"><ImagePlus className="mr-2 h-4 w-4 text-muted-foreground" />Trip Images (Optional)</FormLabel>
+              <FormControl>
+                 <Input 
+                  type="file" 
+                  multiple 
+                  accept="image/png, image/jpeg, image/gif"
+                  onChange={handleFileChange} // Use a specific handler to also update field value
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                />
+              </FormControl>
+              {selectedFileNames.length > 0 && (
+                <FormDescription>
+                  Selected: {selectedFileNames.join(", ")}
+                </FormDescription>
+              )}
+              <FormDescription>Upload up to 5 images (max 2MB each). PNG, JPG, GIF accepted.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField

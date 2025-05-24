@@ -7,7 +7,7 @@ import TripCard from '@/components/core/trip-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, Info, X, RotateCcw } from 'lucide-react';
+import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, Info, X, RotateCcw, Landmark, Palette, Building2, Bike, Navigation } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from 'next/link';
 
@@ -17,9 +17,9 @@ const initialTrips: TripCardProps[] = [
     title: 'Bali Adventure Week',
     destination: 'Bali, Indonesia',
     dates: 'Oct 10 - Oct 17, 2024',
-    description: 'Explore volcanoes, surf, and find your zen in beautiful Bali.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'bali beach',
+    description: 'Explore volcanoes, surf, and find your zen in beautiful Bali. We will visit waterfalls, rice paddies and enjoy local cuisine.',
+    imageUrls: ['https://placehold.co/600x400.png?text=Bali+Volcano', 'https://placehold.co/600x400.png?text=Bali+Surf', 'https://placehold.co/600x400.png?text=Bali+Temple'],
+    dataAiHint: 'bali landscape',
     memberCount: 5,
     budget: '$1000 - $1500',
   },
@@ -28,9 +28,9 @@ const initialTrips: TripCardProps[] = [
     title: 'Tokyo Tech & Tradition',
     destination: 'Tokyo, Japan',
     dates: 'Nov 5 - Nov 12, 2024',
-    description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'tokyo street',
+    description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo. A mix of modern marvels and serene shrines.',
+    imageUrls: ['https://placehold.co/600x400.png?text=Tokyo+Skyline', 'https://placehold.co/600x400.png?text=Tokyo+Temple'],
+    dataAiHint: 'tokyo city',
     memberCount: 3,
     budget: '$2000 - $2500',
   },
@@ -39,9 +39,9 @@ const initialTrips: TripCardProps[] = [
     title: 'Parisian Charm Getaway',
     destination: 'Paris, France',
     dates: 'Dec 1 - Dec 7, 2024',
-    description: 'Indulge in art, cuisine, and romance in the City of Lights.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'paris eiffel',
+    description: 'Indulge in art, cuisine, and romance in the City of Lights. Visit museums, enjoy cafes, and stroll along the Seine.',
+    imageUrls: ['https://placehold.co/600x400.png?text=Paris+Eiffel+Tower', 'https://placehold.co/600x400.png?text=Paris+Louvre'],
+    dataAiHint: 'paris romance',
     memberCount: 2,
     budget: '$1800 - $2200',
   },
@@ -50,9 +50,9 @@ const initialTrips: TripCardProps[] = [
     title: 'Andes Mountain Trek',
     destination: 'Peru',
     dates: 'Jan 10 - Jan 20, 2025',
-    description: 'Challenging trek through the stunning Andes mountains. Experience breathtaking views.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'andes mountains',
+    description: 'Challenging trek through the stunning Andes mountains. Experience breathtaking views and ancient Incan trails.',
+    imageUrls: ['https://placehold.co/600x400.png?text=Andes+Trek', 'https://placehold.co/600x400.png?text=Machu+Picchu'],
+    dataAiHint: 'andes peru',
     memberCount: 4,
     budget: '$2200 - $2800',
   },
@@ -61,9 +61,9 @@ const initialTrips: TripCardProps[] = [
     title: 'Sahara Desert Expedition',
     destination: 'Morocco',
     dates: 'Feb 15 - Feb 22, 2025',
-    description: 'Camel rides, stargazing, and Berber culture in the vast Sahara desert.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'sahara desert',
+    description: 'Camel rides, stargazing, and Berber culture in the vast Sahara desert. Sleep under the stars in a desert camp.',
+    imageUrls: ['https://placehold.co/600x400.png?text=Sahara+Dunes', 'https://placehold.co/600x400.png?text=Sahara+Camel+Ride'],
+    dataAiHint: 'sahara morocco',
     memberCount: 6,
     budget: '$1500 - $2000',
   },
@@ -75,6 +75,11 @@ const categories = [
   { name: 'Desert', icon: Sun, dataAiHint: 'desert dunes' },
   { name: 'Hill Stations', icon: MountainSnow, dataAiHint: 'hill station' },
   { name: 'Ice & Snow', icon: Snowflake, dataAiHint: 'snowy landscape' },
+  { name: 'Historical', icon: Landmark, dataAiHint: 'historical ruins' },
+  { name: 'Cultural', icon: Palette, dataAiHint: 'cultural festival' },
+  { name: 'City Break', icon: Building2, dataAiHint: 'city skyline' },
+  { name: 'Adventure', icon: Bike, dataAiHint: 'adventure sport' }, // Changed from Adventure Sports
+  { name: 'Road Trip', icon: Navigation, dataAiHint: 'road trip scenic' },
 ];
 
 export default function DiscoverPage() {
@@ -84,9 +89,7 @@ export default function DiscoverPage() {
   const [showPreferencesAlert, setShowPreferencesAlert] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching data
     setTrips(initialTrips);
-    // In a real app, check if preferences are set
     const dismissed = localStorage.getItem('preferencesAlertDismissed');
     if (dismissed) {
       setShowPreferencesAlert(false);
@@ -97,7 +100,7 @@ export default function DiscoverPage() {
     setTrips(initialTrips);
     setSearchTerm('');
     setSelectedCategory(null);
-    setShowPreferencesAlert(true);
+    setShowPreferencesAlert(true); // Show alert again on reset
     localStorage.removeItem('preferencesAlertDismissed');
   };
 
@@ -106,12 +109,12 @@ export default function DiscoverPage() {
     localStorage.setItem('preferencesAlertDismissed', 'true');
   }
 
-  // TODO: Implement filtering logic based on searchTerm and selectedCategory
   const filteredTrips = trips.filter(trip => {
     const matchesSearch = searchTerm === '' || 
                           trip.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           trip.destination.toLowerCase().includes(searchTerm.toLowerCase());
-    // const matchesCategory = selectedCategory === null || trip.category === selectedCategory; // Assuming trips have a category prop
+    // TODO: Implement actual category filtering when trips have category data
+    // const matchesCategory = selectedCategory === null || trip.category === selectedCategory; 
     return matchesSearch; // && matchesCategory;
   });
 
@@ -135,7 +138,6 @@ export default function DiscoverPage() {
         </Alert>
       )}
 
-      {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input 
@@ -147,13 +149,12 @@ export default function DiscoverPage() {
         />
       </div>
 
-      {/* Categories Section */}
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Categories</h2>
-          <Button variant="link" asChild className="text-primary">
-            <Link href="/categories">See All</Link>
-          </Button>
+          {/* <Button variant="link" asChild className="text-primary">
+            <Link href="/categories">See All</Link> {/* Link to a future dedicated categories page */}
+          {/* </Button> */}
         </div>
         <ScrollArea className="w-full whitespace-nowrap rounded-md">
           <div className="flex space-x-4 pb-4">
@@ -161,11 +162,11 @@ export default function DiscoverPage() {
               <Button 
                 key={category.name} 
                 variant={selectedCategory === category.name ? "default" : "outline"}
-                className="flex flex-col items-center justify-center h-24 w-24 p-2 rounded-lg shadow-md"
+                className="flex flex-col items-center justify-center h-28 w-28 p-2 rounded-lg shadow-md transition-all hover:shadow-lg"
                 onClick={() => setSelectedCategory(selectedCategory === category.name ? null : category.name)}
               >
-                <category.icon className="h-8 w-8 mb-1 text-primary" />
-                <span className="text-xs font-medium">{category.name}</span>
+                <category.icon className={`h-10 w-10 mb-2 ${selectedCategory === category.name ? 'text-primary-foreground' : 'text-primary'}`} />
+                <span className="text-xs font-medium text-center">{category.name}</span>
               </Button>
             ))}
           </div>
@@ -173,11 +174,10 @@ export default function DiscoverPage() {
         </ScrollArea>
       </div>
 
-      {/* Recommended Trips Section */}
       <div>
         <h2 className="text-2xl font-semibold mb-6">Recommended Trips</h2>
         {filteredTrips.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"> {/* Increased gap */}
             {filteredTrips.map((trip) => (
               <TripCard key={trip.id} {...trip} />
             ))}
@@ -195,5 +195,3 @@ export default function DiscoverPage() {
     </div>
   );
 }
-
-    

@@ -12,8 +12,8 @@ const mockGroups: TripCardProps[] = [
     destination: 'Thailand, Vietnam, Cambodia',
     dates: 'Nov 2024 - Jan 2025',
     description: 'Looking for adventurous souls to explore SEA for 2 months. Flexible itinerary.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'asia temple', // Changed from imageHint
+    imageUrls: ['https://placehold.co/600x400.png?text=SEA+Temple', 'https://placehold.co/600x400.png?text=SEA+Market'],
+    dataAiHint: 'asia temple',
     memberCount: 3,
     budget: '$1500/month',
   },
@@ -23,8 +23,8 @@ const mockGroups: TripCardProps[] = [
     destination: 'Paris, Rome, Berlin',
     dates: 'Spring 2025',
     description: 'Culture vultures unite! Join us for a whirlwind tour of Europe\'s iconic cities.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'europe city', // Changed from imageHint
+    imageUrls: ['https://placehold.co/600x400.png?text=Europe+City1', 'https://placehold.co/600x400.png?text=Europe+City2'],
+    dataAiHint: 'europe city',
     memberCount: 4,
     budget: '$2500 - $3000',
   },
@@ -34,8 +34,8 @@ const mockGroups: TripCardProps[] = [
     destination: 'Peru & Bolivia',
     dates: 'July 2025',
     description: 'High-altitude trekking adventure through the Andes. Experienced hikers preferred.',
-    imageUrl: 'https://placehold.co/600x400.png',
-    dataAiHint: 'andes mountains', // Changed from imageHint
+    imageUrls: ['https://placehold.co/600x400.png?text=Andes+Mountains1', 'https://placehold.co/600x400.png?text=Andes+Mountains2'],
+    dataAiHint: 'andes mountains',
     memberCount: 2,
     budget: '$3000 - $4000',
   },
@@ -63,7 +63,7 @@ export default function GroupsPage() {
       <section className="lg:w-3/4">
         <h1 className="text-3xl font-bold mb-6 text-gradient">Find Your Travel Group</h1>
         {filteredGroups.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8"> {/* Increased gap */}
             {filteredGroups.map((group) => (
               <TripCard key={group.id} {...group} />
             ))}
