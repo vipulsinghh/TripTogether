@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Edit3, MapPin, Briefcase, Heart, UserCog, Cigarette, Wine, Users, Cake, CheckSquare, AlertTriangle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -41,7 +41,8 @@ import {
   userAlcoholPreferenceOptions, 
   genderPreferenceOptions, 
   ageGroupOptions, 
-  travelerTypeOptions 
+  travelerTypeOptions,
+  type ProfileFormValues
 } from "@/types";
 
 const getLabel = (options: {value: string, label: string}[], value?: string) => {
@@ -63,13 +64,48 @@ export default function ProfilePage() {
 
         const storedName = localStorage.getItem('userName');
         const storedEmail = localStorage.getItem('userEmail');
+        
+        let initialUserUpdate: Partial<User> = {
+          name: storedName || mockUser.name, // Fallback to mockUser if not in localStorage
+          email: storedEmail || mockUser.email,
+        };
 
-        setUser(prevUser => ({
-          ...prevUser,
-          name: storedName || prevUser.name,
-          email: storedEmail || prevUser.email,
-          // Potentially load other saved profile fields from localStorage here too if UserProfileForm saves them
-        }));
+        const storedProfileDataString = localStorage.getItem('userProfileData');
+        if (storedProfileDataString) {
+          try {
+            const rawParsedData = JSON.parse(storedProfileDataString);
+
+            const ensureStringArray = (arr: any): string[] => {
+              if (!Array.isArray(arr)) return [];
+              return arr
+                .map((item: any) => {
+                  if (typeof item === 'string') return item.trim();
+                  if (typeof item === 'object' && item !== null && typeof item.value === 'string') return item.value.trim();
+                  return null; 
+                })
+                .filter((s: string | null): s is string => s !== null && s !== '');
+            };
+            
+            const loadedProfileSpecifics: Partial<User> = {
+                bio: rawParsedData.bio,
+                smokingPolicy: rawParsedData.smokingPolicy,
+                alcoholPolicy: rawParsedData.alcoholPolicy,
+                preferredGenderMix: rawParsedData.preferredGenderMix,
+                preferredAgeGroup: rawParsedData.preferredAgeGroup,
+                preferredTravelerType: rawParsedData.preferredTravelerType,
+                interests: ensureStringArray(rawParsedData.interests),
+                travelHistory: ensureStringArray(rawParsedData.travelHistory),
+                preferences: ensureStringArray(rawParsedData.preferences),
+            };
+            
+            initialUserUpdate = { ...initialUserUpdate, ...loadedProfileSpecifics };
+
+          } catch (e) {
+            console.error("Failed to parse or format profile data from localStorage", e);
+          }
+        }
+        
+        setUser(prevUser => ({ ...prevUser, ...initialUserUpdate }));
         
         if (!preferencesSet) {
             setIsEditing(true); // Force edit mode if preferences not set
@@ -77,26 +113,38 @@ export default function ProfilePage() {
             setIsEditing(false); // Default to view mode if preferences are set
         }
     }
-  }, []);
+  }, []); // Run once on mount
 
-  const handleSaveSuccess = (updatedUserData: Partial<User>) => {
-    setIsEditing(false); // Switch back to view mode
-    setProfilePreferencesSet(true); // Mark as set in component state
-    // userProfilePreferencesSet in localStorage is handled by UserProfileForm
+  const handleSaveSuccess = useCallback((updatedFormData: ProfileFormValues) => {
+    setIsEditing(false); 
+    setProfilePreferencesSet(true); 
 
-    // Update user state with the data from the form
-    setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
+    // Process form data to match User type for state update
+    const processedDataForState: Partial<User> = {
+      name: updatedFormData.name,
+      bio: updatedFormData.bio,
+      smokingPolicy: updatedFormData.smokingPolicy,
+      alcoholPolicy: updatedFormData.alcoholPolicy,
+      preferredGenderMix: updatedFormData.preferredGenderMix,
+      preferredAgeGroup: updatedFormData.preferredAgeGroup,
+      preferredTravelerType: updatedFormData.preferredTravelerType,
+      interests: updatedFormData.interests?.map(i => i.value).filter(v => v && v.trim() !== '') || [],
+      travelHistory: updatedFormData.travelHistory?.map(th => th.value).filter(v => v && v.trim() !== '') || [],
+      preferences: updatedFormData.preferences?.map(p => p.value).filter(v => v && v.trim() !== '') || [],
+      updatedAt: new Date(),
+    };
+    
+    setUser(prevUser => ({ ...prevUser, ...processedDataForState }));
 
-    // Also update localStorage for name if it was changed
-    if (updatedUserData.name && typeof window !== 'undefined') {
-      localStorage.setItem('userName', updatedUserData.name);
+    if (updatedFormData.name && typeof window !== 'undefined') {
+      localStorage.setItem('userName', updatedFormData.name);
     }
     
     toast({
       title: "Profile Updated!",
       description: "Your changes have been saved successfully.",
     });
-  };
+  }, [toast]);
 
   return (
     <div className="max-w-4xl mx-auto px-2 sm:px-4">
@@ -123,16 +171,16 @@ export default function ProfilePage() {
                 <Mail className="mr-2 h-4 w-4" />
                 {user.email || "No email set"}
               </CardDescription>
-              {/* Show Edit button only if preferences are set, or if in edit mode allow 'View Profile' */}
               {(profilePreferencesSet || isEditing) && ( 
                 <Button 
                   variant="outline" 
                   size="sm" 
                   className="mt-3 md:mt-4" 
                   onClick={() => setIsEditing(!isEditing)}
+                  disabled={!profilePreferencesSet && isEditing} // Disable "View Profile" if in forced edit mode
                 >
                   <Edit3 className="mr-2 h-4 w-4" />
-                  {isEditing ? 'View Profile' : 'Edit Profile & Preferences'}
+                  {isEditing ? (profilePreferencesSet ? 'View Profile' : 'Complete Profile') : 'Edit Profile & Preferences'}
                 </Button>
               )}
             </div>
@@ -231,3 +279,6 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+
+    
