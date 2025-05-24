@@ -23,11 +23,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText, ImagePlus, Tag, Mountain, Palmtree, Sun, MountainSnow, Snowflake, Landmark, Palette, Building2, Bike, Navigation, Briefcase, ThumbsUp, Zap as ZapIcon, Settings2, Cigarette, Wine, Users2 as GroupIcon, Cake, CheckSquare as CheckSquareIcon } from 'lucide-react';
+import { CalendarIcon, PlaneTakeoff, MapPin, DollarSign, Users, FileText, ImagePlus, Tag, Mountain, Palmtree, Sun, MountainSnow, Snowflake, Landmark, Palette, Building2, Bike, Navigation, Briefcase, ThumbsUp, Zap as ZapIcon, Settings2, Cigarette, Wine, Users2 as GroupIcon, Cake, CheckSquare as CheckSquareIcon, LocateFixed } from 'lucide-react';
 import { useState } from "react";
 import { 
-  smokingPolicyOptions, 
-  alcoholPolicyOptions, 
+  smokingPolicyOptions, // For trip policies
+  alcoholPolicyOptions, // For trip policies
   genderPreferenceOptions, 
   ageGroupOptions, 
   travelerTypeOptions,
@@ -55,7 +55,8 @@ const categoryIconComponents: { [key: string]: React.ElementType } = {
 
 const tripFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
-  destination: z.string().min(3, { message: "Destination must be at least 3 characters." }),
+  destination: z.string().min(3, { message: "Main Destination must be at least 3 characters." }),
+  startLocation: z.string().min(3, { message: "Start Location must be at least 3 characters." }),
   startDate: z.date({ required_error: "Start date is required." }),
   endDate: z.date({ required_error: "End date is required." }),
   description: z.string().min(20, { message: "Description must be at least 20 characters." }).max(1000, "Description max 1000 chars"),
@@ -69,6 +70,7 @@ const tripFormSchema = z.object({
     (files) => !files || Array.from(files).every(file => file.size <= 2 * 1024 * 1024),
     "Each image must be less than 2MB."
   ),
+  // These define THE TRIP's policies and target audience
   smokingPolicy: z.enum(['any', 'permitted', 'not_permitted', 'outside_only']).default('any'),
   alcoholPolicy: z.enum(['any', 'permitted', 'not_permitted', 'socially']).default('any'),
   genderPreference: z.enum(['any', 'men_only', 'women_only', 'mixed']).default('any'),
@@ -90,6 +92,7 @@ export default function TripCreationForm() {
     defaultValues: {
       title: "",
       destination: "",
+      startLocation: "",
       description: "",
       categories: [],
       budget: "",
@@ -145,19 +148,34 @@ export default function TripCreationForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="destination"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center text-sm sm:text-base"><MapPin className="mr-2 h-4 w-4 text-muted-foreground" />Destination</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Bali, Indonesia" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <FormField
+            control={form.control}
+            name="destination"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center text-sm sm:text-base"><MapPin className="mr-2 h-4 w-4 text-muted-foreground" />Main Destination</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Bali, Indonesia" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="startLocation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center text-sm sm:text-base"><LocateFixed className="mr-2 h-4 w-4 text-muted-foreground" />Trip Start Location</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Denpasar Airport, Bali" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <FormField
@@ -343,13 +361,14 @@ export default function TripCreationForm() {
 
         <div className="space-y-4 p-3 sm:p-4 border rounded-lg bg-muted/30">
             <h3 className="text-md sm:text-lg font-semibold flex items-center"><Settings2 className="mr-2 h-4 sm:h-5 w-4 sm:w-5 text-primary" />Trip Policies & Target Audience</h3>
+            <FormDescription className="text-xs sm:text-sm -mt-2 mb-3">Define the rules and who this trip is best suited for.</FormDescription>
             <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                 <FormField
                     control={form.control}
                     name="smokingPolicy"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="flex items-center text-xs sm:text-sm"><Cigarette className="mr-2 h-4 w-4 text-muted-foreground"/>Smoking Policy</FormLabel>
+                        <FormLabel className="flex items-center text-xs sm:text-sm"><Cigarette className="mr-2 h-4 w-4 text-muted-foreground"/>Smoking Policy (for this trip)</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select policy" /></SelectTrigger></FormControl>
                         <SelectContent>
@@ -365,7 +384,7 @@ export default function TripCreationForm() {
                     name="alcoholPolicy"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="flex items-center text-xs sm:text-sm"><Wine className="mr-2 h-4 w-4 text-muted-foreground"/>Alcohol Policy</FormLabel>
+                        <FormLabel className="flex items-center text-xs sm:text-sm"><Wine className="mr-2 h-4 w-4 text-muted-foreground"/>Alcohol Policy (for this trip)</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select policy" /></SelectTrigger></FormControl>
                         <SelectContent>
@@ -381,7 +400,7 @@ export default function TripCreationForm() {
                     name="genderPreference"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="flex items-center text-xs sm:text-sm"><GroupIcon className="mr-2 h-4 w-4 text-muted-foreground"/>Target Gender Mix</FormLabel>
+                        <FormLabel className="flex items-center text-xs sm:text-sm"><GroupIcon className="mr-2 h-4 w-4 text-muted-foreground"/>Target Gender Mix (for this trip)</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select gender mix" /></SelectTrigger></FormControl>
                         <SelectContent>
@@ -397,7 +416,7 @@ export default function TripCreationForm() {
                     name="targetAgeGroup"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="flex items-center text-xs sm:text-sm"><Cake className="mr-2 h-4 w-4 text-muted-foreground"/>Target Age Group</FormLabel>
+                        <FormLabel className="flex items-center text-xs sm:text-sm"><Cake className="mr-2 h-4 w-4 text-muted-foreground"/>Target Age Group (for this trip)</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select age group" /></SelectTrigger></FormControl>
                         <SelectContent>
@@ -413,7 +432,7 @@ export default function TripCreationForm() {
                     name="targetTravelerType"
                     render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                        <FormLabel className="flex items-center text-xs sm:text-sm"><CheckSquareIcon className="mr-2 h-4 w-4 text-muted-foreground"/>Target Traveler Type</FormLabel>
+                        <FormLabel className="flex items-center text-xs sm:text-sm"><CheckSquareIcon className="mr-2 h-4 w-4 text-muted-foreground"/>Target Traveler Type (for this trip)</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select traveler type" /></SelectTrigger></FormControl>
                         <SelectContent>

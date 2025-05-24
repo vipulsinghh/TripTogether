@@ -8,10 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from "@/components/ui/slider";
-import { Filter, DollarSign, CalendarDays, Users, Search, Cigarette, Wine, Users2, Cake, UserCheck, Settings2, Map } from 'lucide-react';
+import { Filter, DollarSign, CalendarDays, Users, Search, Cigarette, Wine, Users2 as GroupIcon, Cake, UserCheck, Settings2, MapPin, LocateFixed } from 'lucide-react'; // Changed Map to MapPin
 import { 
-  smokingPolicyOptions, 
-  alcoholPolicyOptions, 
+  smokingPolicyOptions, // For trip policies
+  alcoholPolicyOptions, // For trip policies
   genderPreferenceOptions, 
   ageGroupOptions, 
   travelerTypeOptions 
@@ -23,6 +23,7 @@ interface FilterPanelProps {
 
 export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   const [destination, setDestination] = useState('');
+  const [startLocation, setStartLocation] = useState('');
   const [budget, setBudget] = useState(''); 
   const [dates, setDates] = useState(''); 
   const [interests, setInterests] = useState(''); 
@@ -38,6 +39,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   const handleApplyFilters = () => {
     onFilterChange({ 
       destination, 
+      startLocation,
       budget, 
       dates, 
       interests,
@@ -60,7 +62,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
       </CardHeader>
       <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6">
         <div>
-          <Label htmlFor="destination" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Map className="mr-2 h-4 w-4 text-muted-foreground"/>Destination</Label>
+          <Label htmlFor="destination" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><MapPin className="mr-2 h-4 w-4 text-muted-foreground"/>Main Destination</Label>
           <Input 
             id="destination" 
             placeholder="e.g., Bali, Paris" 
@@ -69,9 +71,21 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
             className="shadow-sm text-sm"
           />
         </div>
+
+        <div>
+          <Label htmlFor="startLocation" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><LocateFixed className="mr-2 h-4 w-4 text-muted-foreground"/>Trip Start Location</Label>
+          <Input 
+            id="startLocation" 
+            placeholder="e.g., Denpasar Airport" 
+            value={startLocation} 
+            onChange={(e) => setStartLocation(e.target.value)} 
+            className="shadow-sm text-sm"
+          />
+          {/* Future: <Label className="text-xs text-muted-foreground">Radius filter coming soon!</Label> */}
+        </div>
         
         <div>
-          <Label htmlFor="budget" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><DollarSign className="mr-2 h-4 w-4 text-muted-foreground"/>Budget Range</Label>
+          <Label htmlFor="budget" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><DollarSign className="mr-2 h-4 w-4 text-muted-foreground"/>Budget Range (for trip)</Label>
           <Select value={budget} onValueChange={setBudget}>
             <SelectTrigger id="budget" className="shadow-sm text-sm">
               <SelectValue placeholder="Select budget" />
@@ -91,7 +105,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
           <Input 
             id="dates" 
             type="text" 
-            placeholder="e.g., Next Month" 
+            placeholder="e.g., Next Month, Dec 2024" 
             value={dates}
             onChange={(e) => setDates(e.target.value)} 
             className="shadow-sm text-sm"
@@ -99,10 +113,10 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         </div>
 
         <div>
-          <Label htmlFor="interests" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Search className="mr-2 h-4 w-4 text-muted-foreground"/>Interests</Label>
+          <Label htmlFor="interests" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Search className="mr-2 h-4 w-4 text-muted-foreground"/>Trip Categories/Interests</Label>
           <Input 
             id="interests" 
-            placeholder="e.g., Hiking, Museums" 
+            placeholder="e.g., Adventure, Cultural" 
             value={interests}
             onChange={(e) => setInterests(e.target.value)} 
             className="shadow-sm text-sm"
@@ -110,7 +124,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         </div>
 
         <div>
-          <Label htmlFor="groupSize" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Users2 className="mr-2 h-4 w-4 text-muted-foreground"/>Group Size: {currentGroupSize[0]} - {currentGroupSize[1]}</Label>
+          <Label htmlFor="groupSize" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><GroupIcon className="mr-2 h-4 w-4 text-muted-foreground"/>Max Group Size: {currentGroupSize[0]} - {currentGroupSize[1]}</Label>
           <Slider
             id="groupSize"
             min={2}
@@ -123,7 +137,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         </div>
         
         <div>
-          <Label htmlFor="ageGroup" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Cake className="mr-2 h-4 w-4 text-muted-foreground"/>Target Age Group</Label>
+          <Label htmlFor="ageGroup" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Cake className="mr-2 h-4 w-4 text-muted-foreground"/>Target Age Group (for trip)</Label>
           <Select value={currentAgeGroup} onValueChange={setCurrentAgeGroup}>
             <SelectTrigger id="ageGroup" className="shadow-sm text-sm">
               <SelectValue placeholder="Select age group" />
@@ -135,7 +149,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         </div>
 
         <div>
-          <Label htmlFor="travelerType" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><UserCheck className="mr-2 h-4 w-4 text-muted-foreground"/>Target Traveler Type</Label>
+          <Label htmlFor="travelerType" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><UserCheck className="mr-2 h-4 w-4 text-muted-foreground"/>Target Traveler Type (for trip)</Label>
           <Select value={currentTravelerType} onValueChange={setCurrentTravelerType}>
             <SelectTrigger id="travelerType" className="shadow-sm text-sm">
               <SelectValue placeholder="Select traveler type" />
@@ -147,7 +161,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         </div>
         
         <div>
-          <Label htmlFor="smokingPolicy" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Cigarette className="mr-2 h-4 w-4 text-muted-foreground"/>Smoking Policy</Label>
+          <Label htmlFor="smokingPolicy" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Cigarette className="mr-2 h-4 w-4 text-muted-foreground"/>Smoking Policy (of trip)</Label>
           <Select value={currentSmokingPolicy} onValueChange={setCurrentSmokingPolicy}>
             <SelectTrigger id="smokingPolicy" className="shadow-sm text-sm">
               <SelectValue placeholder="Select smoking policy" />
@@ -159,7 +173,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         </div>
 
         <div>
-          <Label htmlFor="alcoholPolicy" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Wine className="mr-2 h-4 w-4 text-muted-foreground"/>Alcohol Policy</Label>
+          <Label htmlFor="alcoholPolicy" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Wine className="mr-2 h-4 w-4 text-muted-foreground"/>Alcohol Policy (of trip)</Label>
           <Select value={currentAlcoholPolicy} onValueChange={setCurrentAlcoholPolicy}>
             <SelectTrigger id="alcoholPolicy" className="shadow-sm text-sm">
               <SelectValue placeholder="Select alcohol policy" />
@@ -171,7 +185,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         </div>
 
         <div>
-          <Label htmlFor="genderPreference" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Users className="mr-2 h-4 w-4 text-muted-foreground"/>Gender Preference</Label>
+          <Label htmlFor="genderPreference" className="flex items-center mb-1 text-xs sm:text-sm font-medium"><Users className="mr-2 h-4 w-4 text-muted-foreground"/>Target Gender Mix (for trip)</Label>
           <Select value={currentGenderPreference} onValueChange={setCurrentGenderPreference}>
             <SelectTrigger id="genderPreference" className="shadow-sm text-sm">
               <SelectValue placeholder="Select gender preference" />

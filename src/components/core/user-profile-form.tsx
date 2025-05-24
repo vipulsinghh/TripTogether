@@ -17,9 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// Removed useToast from here as it's handled by the parent ProfilePage
 import { PlusCircle, Trash2, Save, UserCog, Cigarette, Wine, Users, Cake, CheckSquare } from 'lucide-react';
-// Removed useRouter from here as navigation is handled by parent or onSubmit callback
 import { 
   userSmokingPreferenceOptions, 
   userAlcoholPreferenceOptions, 
@@ -35,6 +33,7 @@ const profileFormSchema = z.object({
   interests: z.array(z.object({ value: z.string().min(1, "Interest cannot be empty") })).optional(),
   travelHistory: z.array(z.object({ value: z.string().min(1, "Travel history item cannot be empty") })).optional(),
   preferences: z.array(z.object({ value: z.string().min(1, "Preference cannot be empty") })).optional(),
+  // These fields describe the USER's own habits and what they look for in companions/groups
   smokingPolicy: z.enum(['any', 'non_smoker', 'smoker_friendly', 'flexible_smoking']).default('any'),
   alcoholPolicy: z.enum(['any', 'dry_trip', 'social_drinker', 'party_friendly']).default('any'),
   preferredGenderMix: z.enum(['any', 'men_only', 'women_only', 'mixed']).default('any'),
@@ -46,12 +45,10 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 interface UserProfileFormProps {
   defaultValues?: Partial<ProfileFormValues & { email?: string; avatarUrl?: string }>;
-  onSaveSuccess?: () => void; // Callback for successful save
+  onSaveSuccess?: () => void; 
 }
 
 export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserProfileFormProps) {
-  // const { toast } = useToast(); // Toast handled by parent
-  // const router = useRouter(); // Navigation handled by parent or callback
   
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -81,25 +78,16 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
 
 
   async function onSubmit(data: ProfileFormValues) {
-    console.log("Profile Data:", data);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    console.log("Profile Data to save:", data);
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('userProfilePreferencesSet', 'true');
     }
 
-    // Toast is handled by parent (ProfilePage)
-    // toast({
-    //   title: "Profile Updated!",
-    //   description: "Your travel profile has been successfully saved.",
-    // });
-
     if (onSaveSuccess) {
-      onSaveSuccess(); // Call the callback passed from parent
+      onSaveSuccess(); 
     } 
-    // else {
-      // router.push('/discover'); // Default redirect removed, parent handles UI state
-    // }
   }
 
   return (
@@ -139,7 +127,8 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
           )}
         />
         
-        <h3 className="text-lg font-semibold border-b pb-2 flex items-center"><UserCog className="mr-2 h-5 w-5 text-primary" />Travel Style & Preferences</h3>
+        <h3 className="text-lg font-semibold border-b pb-2 flex items-center"><UserCog className="mr-2 h-5 w-5 text-primary" />About You & Your Travel Style</h3>
+        <p className="text-sm text-muted-foreground -mt-6">Help us understand your personal habits and what you look for in travel companions and groups.</p>
 
         <div className="grid md:grid-cols-2 gap-6">
           <FormField
@@ -150,7 +139,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                 <FormLabel className="flex items-center"><Cigarette className="mr-2 h-4 w-4 text-muted-foreground" />Your Smoking Stance</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger><SelectValue placeholder="Select your smoking preference" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select your smoking stance" /></SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {userSmokingPreferenceOptions.map(opt => (
@@ -158,7 +147,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>How do you feel about smoking in travel groups?</FormDescription>
+                <FormDescription className="text-xs">How do you feel about smoking when traveling?</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -172,7 +161,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                 <FormLabel className="flex items-center"><Wine className="mr-2 h-4 w-4 text-muted-foreground" />Your Alcohol Stance</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger><SelectValue placeholder="Select your alcohol preference" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select your alcohol stance" /></SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {userAlcoholPreferenceOptions.map(opt => (
@@ -180,7 +169,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>Your comfort level with alcohol in travel groups.</FormDescription>
+                <FormDescription className="text-xs">Your comfort level with alcohol in travel groups.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -204,6 +193,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                     ))}
                   </SelectContent>
                 </Select>
+                 <FormDescription className="text-xs">What gender mix are you most comfortable with in a group?</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -224,6 +214,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                     ))}
                   </SelectContent>
                 </Select>
+                <FormDescription className="text-xs">What age range do you prefer for travel companions?</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -235,7 +226,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
             name="preferredTravelerType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center"><CheckSquare className="mr-2 h-4 w-4 text-muted-foreground" />Preferred Traveler Type</FormLabel>
+                <FormLabel className="flex items-center"><CheckSquare className="mr-2 h-4 w-4 text-muted-foreground" />Your Preferred Traveler Type/Vibe</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger><SelectValue placeholder="Select preferred traveler type" /></SelectTrigger>
@@ -246,7 +237,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>What kind of travelers or trips do you prefer?</FormDescription>
+                <FormDescription className="text-xs">What kind of travelers or trip styles do you generally prefer?</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -325,8 +316,8 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
 
         {/* General Preferences */}
         <div>
-          <FormLabel className="text-md font-medium">Other Preferences</FormLabel>
-           <FormDescription>Any other specific preferences (e.g., Budget-friendly, Adventure focus).</FormDescription>
+          <FormLabel className="text-md font-medium">Other General Preferences</FormLabel>
+           <FormDescription>Any other specific preferences for your travel experiences (e.g., Prefer quiet stays, Love street food).</FormDescription>
           {preferenceFields.map((field, index) => (
             <FormField
               control={form.control}
@@ -335,7 +326,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
               render={({ field }) => (
                 <FormItem className="flex items-center gap-2 mt-2">
                   <FormControl>
-                    <Input placeholder="e.g., Budget-friendly" {...field} />
+                    <Input placeholder="e.g., Prefer quiet stays" {...field} />
                   </FormControl>
                   {preferenceFields.length > 1 && (
                     <Button type="button" variant="ghost" size="icon" onClick={() => removePreference(index)} aria-label="Remove preference">

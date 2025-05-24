@@ -17,6 +17,7 @@ const initialTrips: Trip[] = [
     id: '1',
     title: 'Bali Adventure Week',
     destination: 'Bali, Indonesia',
+    startLocation: 'Denpasar Airport (DPS)',
     startDate: new Date('2024-10-10'),
     endDate: new Date('2024-10-17'),
     description: 'Explore volcanoes, surf, and find your zen in beautiful Bali. We will visit waterfalls, rice paddies and enjoy local cuisine.',
@@ -40,6 +41,7 @@ const initialTrips: Trip[] = [
     id: '2',
     title: 'Tokyo Tech & Tradition',
     destination: 'Tokyo, Japan',
+    startLocation: 'Narita International Airport (NRT)',
     startDate: new Date('2024-11-05'),
     endDate: new Date('2024-11-12'),
     description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo. A mix of modern marvels and serene shrines.',
@@ -63,6 +65,7 @@ const initialTrips: Trip[] = [
     id: '3',
     title: 'Parisian Charm Getaway',
     destination: 'Paris, France',
+    startLocation: 'Charles de Gaulle Airport (CDG)',
     startDate: new Date('2024-12-01'),
     endDate: new Date('2024-12-07'),
     description: 'Indulge in art, cuisine, and romance in the City of Lights. Visit museums, enjoy cafes, and stroll along the Seine.',
@@ -86,6 +89,7 @@ const initialTrips: Trip[] = [
     id: '4',
     title: 'Andes Mountain Trek',
     destination: 'Peru',
+    startLocation: 'Cusco City Center',
     startDate: new Date('2025-01-10'),
     endDate: new Date('2025-01-20'),
     description: 'Challenging trek through the stunning Andes mountains. Experience breathtaking views and ancient Incan trails.',
@@ -104,6 +108,7 @@ const initialTrips: Trip[] = [
     id: '5',
     title: 'Sahara Desert Expedition',
     destination: 'Morocco',
+    startLocation: 'Marrakech City',
     startDate: new Date('2025-02-15'),
     endDate: new Date('2025-02-22'),
     description: 'Camel rides, stargazing, and Berber culture in the vast Sahara desert. Sleep under the stars in a desert camp.',
@@ -151,13 +156,16 @@ export default function DiscoverPage() {
       const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
       setProfilePreferencesSet(preferencesSet);
       
+      // Redirect to login if not signed in - this page requires auth
       const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       if (!signedIn) {
+        // Assuming you have a way to redirect, e.g. Next.js router
+        // For simplicity, just don't load trips. In a real app, redirect.
         setTrips([]); 
         return;
       }
     }
-    setTrips(initialTrips); 
+    setTrips(initialTrips); // Load initial trips if signed in
   }, []);
   
   const handleResetFilters = () => {
@@ -167,7 +175,7 @@ export default function DiscoverPage() {
 
   const handleCategorySelect = (categoryName: string) => {
     if (selectedCategory === categoryName) {
-      setSelectedCategory(null); 
+      setSelectedCategory(null); // Deselect if already selected
     } else {
       setSelectedCategory(categoryName);
     }
@@ -183,7 +191,7 @@ export default function DiscoverPage() {
     return matchesSearch && matchesCategory;
   });
 
-  if (profilePreferencesSet === null) {
+  if (profilePreferencesSet === null) { // Still checking if profile state is determined
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <RotateCcw className="h-10 w-10 text-primary animate-spin mr-2" /> 

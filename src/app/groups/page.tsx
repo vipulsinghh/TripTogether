@@ -3,16 +3,17 @@
 
 import { useState, useEffect } from 'react';
 import TripCard from '@/components/core/trip-card';
-import type { Trip } from '@/types'; // Use the main Trip type
+import type { Trip } from '@/types'; 
 import FilterPanel from '@/components/core/filter-panel';
-import { Loader2, Users as UsersIcon } from 'lucide-react'; // For loading state and placeholder
+import { Loader2, Users as UsersIcon } from 'lucide-react'; 
 import { useRouter } from 'next/navigation';
 
-const mockGroups: Trip[] = [ // Changed to use Trip type
+const mockGroups: Trip[] = [ 
   {
     id: 'group1',
     title: 'Southeast Asia Backpackers',
     destination: 'Thailand, Vietnam, Cambodia',
+    startLocation: 'Bangkok, Thailand',
     startDate: new Date('2024-11-01'),
     endDate: new Date('2025-01-31'),
     description: 'Looking for adventurous souls to explore SEA for 2 months. Flexible itinerary, open to all friendly travelers. Focus on cultural immersion and street food.',
@@ -35,6 +36,7 @@ const mockGroups: Trip[] = [ // Changed to use Trip type
     id: 'group2',
     title: 'European Cities Tour',
     destination: 'Paris, Rome, Berlin',
+    startLocation: 'Paris, France',
     startDate: new Date('2025-04-01'),
     endDate: new Date('2025-04-20'),
     description: 'Culture vultures unite! Join us for a whirlwind tour of Europe\'s iconic cities. Museum visits, historical walks, and fine dining. Couples and singles welcome.',
@@ -57,6 +59,7 @@ const mockGroups: Trip[] = [ // Changed to use Trip type
     id: 'group3',
     title: 'Andes Trekking Expedition',
     destination: 'Peru & Bolivia',
+    startLocation: 'Cusco, Peru',
     startDate: new Date('2025-07-01'),
     endDate: new Date('2025-07-20'),
     description: 'High-altitude trekking adventure through the Andes. Experienced hikers preferred. This is a challenging trip for serious adventurers.',
@@ -79,6 +82,7 @@ const mockGroups: Trip[] = [ // Changed to use Trip type
     id: 'group4',
     title: 'Family Beach Holiday - Costa Rica',
     destination: 'Costa Rica',
+    startLocation: 'San José, Costa Rica',
     startDate: new Date('2025-08-01'),
     endDate: new Date('2025-08-10'),
     description: 'Fun and relaxing beach holiday for families. Kid-friendly activities, safe environment. No smoking, light alcohol okay.',
@@ -103,13 +107,14 @@ export default function GroupsPage() {
   const [filteredGroups, setFilteredGroups] = useState<Trip[]>([]);
   const [filters, setFilters] = useState({
     destination: '',
-    budget: '', // This would ideally be a range or structured object
-    dates: '', // This would ideally be a date range
-    interests: '', // Could be comma-separated string or array
+    startLocation: '',
+    budget: '', 
+    dates: '', 
+    interests: '', 
     smokingPolicy: 'any',
     alcoholPolicy: 'any',
     genderPreference: 'any',
-    groupSize: [2, 20] as [number, number], // Use specific type for slider
+    groupSize: [2, 20] as [number, number], 
     ageGroup: 'any',
     travelerType: 'any',
   });
@@ -117,21 +122,19 @@ export default function GroupsPage() {
   const router = useRouter();
 
   useEffect(() => {
-     // Profile completion check
     if (typeof window !== 'undefined') {
       const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
-      if (signedIn && !preferencesSet) {
-        router.replace('/profile'); 
+      if (!signedIn) {
+        router.replace('/'); // Redirect to landing if not signed in
         return;
       }
-       if (!signedIn) {
-        router.replace('/');
+      if (signedIn && !preferencesSet) {
+        router.replace('/profile'); // Redirect to profile if signed in but profile not set
         return;
       }
     }
     
-    // Proceed with loading groups if profile is complete or not required for this page logic currently
     setIsLoading(true);
     console.log("Applying filters (GroupsPage):", filters);
     
@@ -140,8 +143,9 @@ export default function GroupsPage() {
     if (filters.destination) {
         tempGroups = tempGroups.filter(group => group.destination.toLowerCase().includes(filters.destination.toLowerCase()));
     }
-    // Illustrative: Full filtering for new fields would require comparing trip.targetAgeGroup with filters.ageGroup etc.
-    // This is complex with current string-based budget/dates and needs proper data structures.
+    if (filters.startLocation) {
+        tempGroups = tempGroups.filter(group => group.startLocation && group.startLocation.toLowerCase().includes(filters.startLocation.toLowerCase()));
+    }
     if (filters.smokingPolicy !== 'any') {
       tempGroups = tempGroups.filter(group => group.smokingPolicy === filters.smokingPolicy || group.smokingPolicy === 'any');
     }
@@ -158,7 +162,6 @@ export default function GroupsPage() {
       tempGroups = tempGroups.filter(group => group.targetTravelerType === filters.travelerType || group.targetTravelerType === 'any');
     }
     
-    // Filter by group size range
     tempGroups = tempGroups.filter(group => group.maxGroupSize >= filters.groupSize[0] && group.maxGroupSize <= filters.groupSize[1]);
 
 

@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import type { User } from '@/types'; // Import User type
+import type { User } from '@/types'; 
 import { useToast } from "@/hooks/use-toast";
 
 // Mock user data - extended with new preference fields
@@ -25,11 +25,12 @@ const mockUser: User = {
   interests: ['Hiking', 'Photography', 'Foodie', 'Backpacking', 'Culture'],
   travelHistory: ['Japan 2023 (Cultural, City Break)', 'Peru 2022 (Adventure, Mountains)', 'Italy 2019 (Historical, Foodie)'],
   preferences: ['Budget-friendly', 'Local experiences'],
-  smokingPolicy: 'non_smoker',
-  alcoholPolicy: 'social_drinker',
-  preferredGenderMix: 'mixed',
-  preferredAgeGroup: '26-35',
-  preferredTravelerType: 'backpackers',
+  // User's own attributes / preferences
+  smokingPolicy: 'non_smoker', // from userSmokingPreferenceOptions
+  alcoholPolicy: 'social_drinker', // from userAlcoholPreferenceOptions
+  preferredGenderMix: 'mixed', // from genderPreferenceOptions
+  preferredAgeGroup: '26-35', // from ageGroupOptions
+  preferredTravelerType: 'backpackers', // from travelerTypeOptions
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -57,7 +58,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     // In a real app, fetch user data from API
-    setUser(mockUser);
+    setUser(mockUser); // For now, use mockUser
 
     if (typeof window !== 'undefined') {
         const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
@@ -71,14 +72,16 @@ export default function ProfilePage() {
   }, []);
 
   const handleSaveSuccess = () => {
-    setIsEditing(false);
+    setIsEditing(false); // Switch back to view mode
     setProfilePreferencesSet(true); // Mark as set in component state
     // userProfilePreferencesSet in localStorage is handled by UserProfileForm
     toast({
       title: "Profile Updated!",
       description: "Your changes have been saved successfully.",
     });
-    // Potentially refetch user data here if it was a real API call
+    // Potentially refetch user data here if it was a real API call and update `user` state
+    // For mock data, we can re-set it or assume the form directly modified a shared mockUser object if that were the case.
+    // For this example, we'll just toggle edit mode.
   };
 
   return (
@@ -88,7 +91,7 @@ export default function ProfilePage() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Complete Your Profile!</AlertTitle>
           <AlertDescription>
-            Please complete your profile preferences to get the best travel recommendations and connect with groups.
+            Please complete your profile to get the best travel recommendations and connect with groups.
             Once saved, you can always edit it later.
           </AlertDescription>
         </Alert>
@@ -129,28 +132,28 @@ export default function ProfilePage() {
               
               <div className="space-y-4">
                  <h3 className="text-lg sm:text-xl font-semibold mb-3 flex items-center text-primary border-b pb-2">
-                  <UserCog className="mr-2 h-5 w-5" /> My Travel Style
+                  <UserCog className="mr-2 h-5 w-5" /> My Travel Style & Preferences
                 </h3>
                 <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-8 gap-y-3 md:gap-y-4 text-sm">
                   <div className="flex items-start">
                     <Cigarette className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
-                    <div><strong className="font-medium text-foreground/90">Smoking Stance:</strong> {getLabel(userSmokingPreferenceOptions, user.smokingPolicy)}</div>
+                    <div><strong className="font-medium text-foreground/90">My Smoking Stance:</strong> {getLabel(userSmokingPreferenceOptions, user.smokingPolicy)}</div>
                   </div>
                   <div className="flex items-start">
                     <Wine className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
-                    <div><strong className="font-medium text-foreground/90">Alcohol Stance:</strong> {getLabel(userAlcoholPreferenceOptions, user.alcoholPolicy)}</div>
+                    <div><strong className="font-medium text-foreground/90">My Alcohol Stance:</strong> {getLabel(userAlcoholPreferenceOptions, user.alcoholPolicy)}</div>
                   </div>
                    <div className="flex items-start">
                     <Users className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
-                    <div><strong className="font-medium text-foreground/90">Preferred Gender Mix:</strong> {getLabel(genderPreferenceOptions, user.preferredGenderMix)}</div>
+                    <div><strong className="font-medium text-foreground/90">Preferred Group Gender Mix:</strong> {getLabel(genderPreferenceOptions, user.preferredGenderMix)}</div>
                   </div>
                   <div className="flex items-start">
                     <Cake className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
-                    <div><strong className="font-medium text-foreground/90">Preferred Age Group:</strong> {getLabel(ageGroupOptions, user.preferredAgeGroup)}</div>
+                    <div><strong className="font-medium text-foreground/90">Preferred Companion Age Group:</strong> {getLabel(ageGroupOptions, user.preferredAgeGroup)}</div>
                   </div>
                   <div className="flex items-start md:col-span-2">
                     <CheckSquare className="h-5 w-5 mr-2 sm:mr-3 mt-0.5 text-muted-foreground flex-shrink-0" />
-                    <div><strong className="font-medium text-foreground/90">Preferred Traveler Type:</strong> {getLabel(travelerTypeOptions, user.preferredTravelerType)}</div>
+                    <div><strong className="font-medium text-foreground/90">Preferred Traveler Type/Vibe:</strong> {getLabel(travelerTypeOptions, user.preferredTravelerType)}</div>
                   </div>
                 </div>
               </div>
@@ -183,7 +186,7 @@ export default function ProfilePage() {
 
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
-                  <MapPin className="mr-2 h-5 w-5" /> Other Preferences
+                  <MapPin className="mr-2 h-5 w-5" /> Other General Preferences
                 </h3>
                  {user.preferences && user.preferences.length > 0 ? (
                   <div className="flex flex-wrap gap-2">

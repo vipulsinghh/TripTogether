@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, ChevronLeft, ChevronRight, DollarSign, Users, MapPin, Tag, UserCircle, MessageSquare, CheckCircle, Info, AlertTriangle, Cigarette, Wine, Users2, Cake, CheckSquare as CheckSquareIcon } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, DollarSign, Users, MapPin, Tag, UserCircle, MessageSquare, CheckCircle, Info, AlertTriangle, Cigarette, Wine, Users2, Cake, CheckSquare as CheckSquareIcon, LocateFixed } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Trip } from '@/types'; 
 import { format } from 'date-fns';
@@ -21,6 +21,7 @@ const mockTrips: Trip[] = [
     id: '1',
     title: 'Bali Adventure Week',
     destination: 'Bali, Indonesia',
+    startLocation: 'Denpasar Airport (DPS)',
     startDate: new Date('2024-10-10'),
     endDate: new Date('2024-10-17'),
     description: 'Explore volcanoes, surf, and find your zen in beautiful Bali. We will visit waterfalls, rice paddies and enjoy local cuisine. This trip is perfect for young adventurers looking for a mix of nature, culture, and relaxation. Expect moderate physical activity and lots of photo opportunities!',
@@ -45,6 +46,7 @@ const mockTrips: Trip[] = [
     id: '2',
     title: 'Tokyo Tech & Tradition',
     destination: 'Tokyo, Japan',
+    startLocation: 'Narita International Airport (NRT)',
     startDate: new Date('2024-11-05'),
     endDate: new Date('2024-11-12'),
     description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo. A mix of modern marvels and serene shrines. We will explore Akihabara, visit Senso-ji temple, and enjoy world-class cuisine.',
@@ -80,12 +82,12 @@ export default function TripDetailPage() {
     if (typeof window !== 'undefined') {
       const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
-      if (signedIn && !preferencesSet) {
-        router.replace('/profile'); 
+       if (!signedIn) { // Must be signed in to view trip details
+        router.replace('/'); 
         return;
       }
-      if (!signedIn) {
-        router.replace('/');
+      if (signedIn && !preferencesSet) { // Must have profile set to view trip details
+        router.replace('/profile'); 
         return;
       }
     }
@@ -93,16 +95,17 @@ export default function TripDetailPage() {
     if (foundTrip) {
       setTrip(foundTrip);
     } else {
-      toast({ title: "Trip not found", variant: "destructive" });
+      toast({ title: "Trip not found", variant: "destructive", description: "Could not find the details for this trip." });
       router.push('/discover');
     }
   }, [tripId, router, toast]);
 
   if (!trip) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)] p-4">
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-8rem)] p-4">
         <AlertTriangle className="h-8 w-8 md:h-10 md:w-10 text-destructive mr-2" /> 
         <p className="text-lg md:text-xl text-center">Loading trip details or trip not found...</p>
+        <Button variant="outline" onClick={() => router.push('/discover')} className="mt-4">Go to Discover</Button>
       </div>
     );
   }
@@ -126,7 +129,7 @@ export default function TripDetailPage() {
   return (
     <div className="max-w-5xl mx-auto py-6 sm:py-8 px-2 sm:px-4">
       <Button variant="outline" onClick={() => router.back()} className="mb-4 md:mb-6 text-sm">
-        <ChevronLeft className="h-4 w-4 mr-1 sm:mr-2" /> Back to Trips
+        <ChevronLeft className="h-4 w-4 mr-1 sm:mr-2" /> Back
       </Button>
 
       <Card className="overflow-hidden shadow-xl">
@@ -163,6 +166,12 @@ export default function TripDetailPage() {
                 <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
                 <span>{trip.destination}</span>
               </div>
+              {trip.startLocation && (
+                <div className="flex items-center text-muted-foreground text-sm sm:text-base">
+                  <LocateFixed className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
+                  <span>Starts from: {trip.startLocation}</span>
+                </div>
+              )}
               <div className="flex items-center text-muted-foreground text-sm sm:text-base">
                 <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
                 <span>{formattedStartDate} - {formattedEndDate}</span>
@@ -207,13 +216,13 @@ export default function TripDetailPage() {
           )}
           
            <div className="mb-4 md:mb-6 p-3 sm:p-4 bg-muted/30 rounded-lg border">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 flex items-center"><Info className="h-5 w-5 mr-2 text-primary" />Trip Policies & Vibe</h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 flex items-center"><Info className="h-5 w-5 mr-2 text-primary" />Trip Policies & Target Audience</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 md:gap-x-6 gap-y-2 sm:gap-y-3 text-xs sm:text-sm">
-              <div className="flex items-center"><Cigarette className="h-4 w-4 mr-2 text-muted-foreground"/>Smoking: <Badge variant={trip.smokingPolicy === 'not_permitted' ? 'destructive' : 'outline'} className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.smokingPolicy.replace('_', ' ')}</Badge></div>
-              <div className="flex items-center"><Wine className="h-4 w-4 mr-2 text-muted-foreground"/>Alcohol: <Badge variant={trip.alcoholPolicy === 'not_permitted' ? 'destructive' : 'outline'} className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.alcoholPolicy.replace('_', ' ')}</Badge></div>
-              <div className="flex items-center"><Users2 className="h-4 w-4 mr-2 text-muted-foreground"/>Gender Mix: <Badge variant="outline" className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.genderPreference.replace('_', ' ')}</Badge></div>
-              <div className="flex items-center"><Cake className="h-4 w-4 mr-2 text-muted-foreground"/>Target Age: <Badge variant="outline" className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.targetAgeGroup}</Badge></div>
-              <div className="flex items-center col-span-full sm:col-span-2 lg:col-span-1"><CheckSquareIcon className="h-4 w-4 mr-2 text-muted-foreground"/>Traveler Type: <Badge variant="outline" className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.targetTravelerType.replace('_', ' ')}</Badge></div>
+              <div className="flex items-center"><Cigarette className="h-4 w-4 mr-2 text-muted-foreground"/>Smoking Policy: <Badge variant={trip.smokingPolicy === 'not_permitted' ? 'destructive' : 'outline'} className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.smokingPolicy.replace(/_/g, ' ')}</Badge></div>
+              <div className="flex items-center"><Wine className="h-4 w-4 mr-2 text-muted-foreground"/>Alcohol Policy: <Badge variant={trip.alcoholPolicy === 'not_permitted' ? 'destructive' : 'outline'} className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.alcoholPolicy.replace(/_/g, ' ')}</Badge></div>
+              <div className="flex items-center"><Users2 className="h-4 w-4 mr-2 text-muted-foreground"/>Target Gender Mix: <Badge variant="outline" className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.genderPreference.replace(/_/g, ' ')}</Badge></div>
+              <div className="flex items-center"><Cake className="h-4 w-4 mr-2 text-muted-foreground"/>Target Age Group: <Badge variant="outline" className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.targetAgeGroup}</Badge></div>
+              <div className="flex items-center col-span-full sm:col-span-2 lg:col-span-1"><CheckSquareIcon className="h-4 w-4 mr-2 text-muted-foreground"/>Target Traveler Type: <Badge variant="outline" className="ml-1 text-xs px-1.5 py-0.5 sm:text-sm sm:px-2 sm:py-0.5">{trip.targetTravelerType.replace(/_/g, ' ')}</Badge></div>
             </div>
           </div>
 
