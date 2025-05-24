@@ -22,7 +22,7 @@ export default function Header() {
       setProfilePreferencesSet(preferencesSetStatus);
 
       // Profile completion enforcement
-      const mainAppRoutes = ['/discover', '/groups', '/create-trip', '/chat'];
+      const mainAppRoutes = ['/discover', '/groups', '/create-trip', '/chat']; // Note: /chat might need specific handling if it has sub-routes like /chat/[groupId]
       if (signedInStatus && !preferencesSetStatus && mainAppRoutes.some(route => pathname.startsWith(route)) && pathname !== '/profile') {
         router.replace('/profile');
       }
@@ -32,7 +32,7 @@ export default function Header() {
   useEffect(() => {
     setIsClient(true);
     updateAuthState(); 
-  }, [pathname]); // Removed router from dependency array for this specific effect to avoid potential loops, path change is enough.
+  }, [pathname]); 
 
   // Effect to update isSignedIn when localStorage changes (e.g. from another tab) or on window focus
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function Header() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleStorageChange);
     };
-  }, []); // Runs once on mount
+  }, []); 
 
 
   const handleSignOut = () => {
@@ -73,7 +73,7 @@ export default function Header() {
           {canAccessMainApp && (
             <Button variant="ghost" asChild>
               <Link href="/discover">
-                <Compass className="md:mr-2 h-4 w-4" /> <span className="hidden md:inline">Discover</span>
+                <Compass className="md:mr-2 h-4 w-4" /> <span className="hidden md:inline font-bold text-gradient">Discover</span>
               </Link>
             </Button>
           )}
@@ -81,11 +81,11 @@ export default function Header() {
           {isClient && isSignedIn && (
             profilePreferencesSet ? (
               <Button variant="ghost" asChild>
-                <Link href="/profile"><UserCircle className="md:mr-2 h-4 w-4" /><span className="hidden md:inline">Profile</span></Link>
+                <Link href="/profile"><UserCircle className="md:mr-2 h-4 w-4" /><span className="hidden md:inline font-bold text-gradient">Profile</span></Link>
               </Button>
             ) : (
               <Button variant="ghost" asChild>
-                <Link href="/profile"><Edit className="md:mr-2 h-4 w-4 text-destructive" /><span className="hidden md:inline text-destructive">Complete Profile</span></Link>
+                <Link href="/profile"><Edit className="md:mr-2 h-4 w-4" /><span className="hidden md:inline font-bold text-gradient">Complete Profile</span></Link>
               </Button>
             )
           )}
@@ -93,10 +93,10 @@ export default function Header() {
           {canAccessMainApp && (
             <>
               <Button variant="ghost" asChild>
-                <Link href="/groups"><span className="hidden md:inline">Groups</span><Users className="md:hidden h-4 w-4"/></Link>
+                <Link href="/groups"><Users className="md:hidden h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Groups</span></Link>
               </Button>
               <Button variant="ghost" asChild>
-                <Link href="/create-trip"><span className="hidden md:inline">Create Trip</span><Edit className="md:hidden h-4 w-4"/></Link>
+                <Link href="/create-trip"><Edit className="md:hidden h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Create Trip</span></Link>
               </Button>
               <Button variant="ghost" asChild size="icon" title="Messages">
                 <Link href="/messages">
@@ -114,19 +114,19 @@ export default function Header() {
           )}
           
           {isClient && !isSignedIn && (
-            <div className="flex items-center gap-2"> {/* md:flex removed to always show on larger screens */}
+            <div className="flex items-center gap-2">
               <Button variant="outline" asChild>
-                <Link href="/auth/sign-in">Sign In</Link>
+                <Link href="/auth/sign-in"><span className="font-bold text-gradient">Sign In</span></Link>
               </Button>
               <Button className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground" asChild>
-                <Link href="/auth/sign-up">Sign Up</Link>
+                <Link href="/auth/sign-up"><span className="font-bold">Sign Up</span></Link> 
               </Button>
             </div>
           )}
            {isClient && isSignedIn && (
-            <Button variant="outline" onClick={handleSignOut} className="flex"> {/* md:flex removed to always show this button when signed in */}
+            <Button variant="outline" onClick={handleSignOut} className="flex"> 
               <LogOut className="md:mr-2 h-4 w-4" />
-              <span className="hidden md:inline">Sign Out</span>
+              <span className="hidden md:inline font-bold text-gradient">Sign Out</span>
             </Button>
           )}
         </nav>
