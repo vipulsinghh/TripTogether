@@ -7,7 +7,7 @@ import TripCard from '@/components/core/trip-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag, Users as UsersIcon, Briefcase, ThumbsUp, Zap } from 'lucide-react';
+import { Mountain, Palmtree, Sun, MountainSnow, Snowflake, Search, RotateCcw, Landmark, Palette, Building2, Bike, Navigation, Tag, Users as UsersIcon, Briefcase, ThumbsUp, Zap, DollarSign } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { categoriesList as appCategories } from '@/types'; // Import categories list
@@ -96,6 +96,7 @@ const initialTrips: Trip[] = [
     budget: '$2200 - $2800',
     categories: ['Mountains', 'Adventure', 'Historical'],
     createdById: 'user4',
+    creatorName: 'TrekMaster',
     smokingPolicy: 'not_permitted', alcoholPolicy: 'not_permitted', genderPreference: 'mixed', targetAgeGroup: '18-35', targetTravelerType: 'adventure',
     createdAt: new Date(), updatedAt: new Date(),
   },
@@ -113,6 +114,7 @@ const initialTrips: Trip[] = [
     budget: '$1500 - $2000',
     categories: ['Desert', 'Adventure', 'Cultural'],
     createdById: 'user5',
+    creatorName: 'DesertDreamer',
     smokingPolicy: 'any', alcoholPolicy: 'socially', genderPreference: 'any', targetAgeGroup: 'any', targetTravelerType: 'friends',
     createdAt: new Date(), updatedAt: new Date(),
   },
@@ -134,7 +136,7 @@ const categoryIcons: { [key: string]: React.ElementType } = {
   'Wellness': ThumbsUp, // Placeholder, consider Spa icon
   'Foodie': Zap, // Placeholder, consider Utensils icon
   'Nightlife': Zap, // Placeholder, consider GlassWater or similar
-  'Budget': DollarSign, // Placeholder, better: PiggyBank
+  'Budget': DollarSign, 
 };
 
 
