@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Plane, Compass, LogOut, UserCircle, Edit, MessageSquare, Bell } from 'lucide-react';
+import { Plane, Compass, LogOut, UserCircle, Edit, MessageSquare, Bell, Users } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -32,7 +32,7 @@ export default function Header() {
   useEffect(() => {
     setIsClient(true);
     updateAuthState(); 
-  }, [pathname, router]); // Removed router from dependency array for this specific effect to avoid potential loops, path change is enough.
+  }, [pathname]); // Removed router from dependency array for this specific effect to avoid potential loops, path change is enough.
 
   // Effect to update isSignedIn when localStorage changes (e.g. from another tab) or on window focus
   useEffect(() => {
