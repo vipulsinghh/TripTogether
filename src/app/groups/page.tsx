@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import TripCard from '@/components/core/trip-card';
 import type { Trip } from '@/types'; 
 import FilterPanel from '@/components/core/filter-panel';
@@ -10,6 +10,29 @@ import { useRouter } from 'next/navigation';
 
 const mockGroups: Trip[] = [ 
   {
+    id: 'groupNew1',
+    title: 'Spiritual Sojourn: Mathura & Vrindavan',
+    destination: 'Mathura & Vrindavan, India',
+    startLocation: 'Delhi, India',
+    startDate: new Date('2024-12-01'),
+    endDate: new Date('2024-12-05'),
+    description: 'Explore the sacred cities of Mathura and Vrindavan, birthplace and childhood abode of Lord Krishna. Visit ancient temples, attend serene aartis, and immerse yourself in spiritual bliss.',
+    imageUrls: ['https://www.oyorooms.com/travel-guide/wp-content/uploads/2019/05/Mathura-Vrindavan-Spiritual-haven-for-devotees-Prem-Mandir-Image-3.webp'],
+    dataAiHint: 'vrindavan temple',
+    maxGroupSize: 15,
+    currentMemberCount: 5,
+    budget: '$300 - $500',
+    categories: ['Cultural', 'Historical', 'Religious', 'Budget'],
+    createdById: 'user_creatorNew1',
+    smokingPolicy: 'not_permitted',
+    alcoholPolicy: 'not_permitted',
+    genderPreference: 'any',
+    targetAgeGroup: 'any',
+    targetTravelerType: 'friends', // Can be 'family' or 'spiritual_seekers'
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
     id: 'group1',
     title: 'Southeast Asia Backpackers',
     destination: 'Thailand, Vietnam, Cambodia',
@@ -17,8 +40,8 @@ const mockGroups: Trip[] = [
     startDate: new Date('2024-11-01'),
     endDate: new Date('2025-01-31'),
     description: 'Looking for adventurous souls to explore SEA for 2 months. Flexible itinerary, open to all friendly travelers. Focus on cultural immersion and street food.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
-    dataAiHint: 'asia temple',
+    imageUrls: ['https://www.introtravel.com/media/images/UltimateGuide_SEABackpacking_CoverImage.original.jpg'],
+    dataAiHint: 'southeast asia backpacking',
     maxGroupSize: 10,
     currentMemberCount: 3,
     budget: '$1500/month',
@@ -40,8 +63,8 @@ const mockGroups: Trip[] = [
     startDate: new Date('2025-04-01'),
     endDate: new Date('2025-04-20'),
     description: 'Culture vultures unite! Join us for a whirlwind tour of Europe\'s iconic cities. Museum visits, historical walks, and fine dining. Couples and singles welcome.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
-    dataAiHint: 'europe city',
+    imageUrls: ['https://media.cntraveller.com/photos/611bec20a954a4e571f6f230/16:9/w_2580,c_limit/europe.jpg'],
+    dataAiHint: 'europe city tour',
     maxGroupSize: 8,
     currentMemberCount: 4,
     budget: '$2500 - $3000',
@@ -63,8 +86,8 @@ const mockGroups: Trip[] = [
     startDate: new Date('2025-07-01'),
     endDate: new Date('2025-07-20'),
     description: 'High-altitude trekking adventure through the Andes. Experienced hikers preferred. This is a challenging trip for serious adventurers.',
-    imageUrls: ['https://placehold.co/600x400.png'],
-    dataAiHint: 'andes mountains',
+    imageUrls: ['https://www.cascada.travel/hubfs/INV-001_4.jpg'],
+    dataAiHint: 'andes trekking',
     maxGroupSize: 6,
     currentMemberCount: 2,
     budget: '$3000 - $4000',
@@ -86,8 +109,8 @@ const mockGroups: Trip[] = [
     startDate: new Date('2025-08-01'),
     endDate: new Date('2025-08-10'),
     description: 'Fun and relaxing beach holiday for families. Kid-friendly activities, safe environment. No smoking, light alcohol okay.',
-    imageUrls: ['https://placehold.co/600x400.png', 'https://placehold.co/600x400.png'],
-    dataAiHint: 'costa rica beach family',
+    imageUrls: ['https://media-cdn.tripadvisor.com/media/photo-s/2e/d4/c4/35/ocean-front-view.jpg'],
+    dataAiHint: 'costa rica beach',
     maxGroupSize: 12,
     currentMemberCount: 7,
     budget: '$2000 - $2800',
@@ -98,6 +121,29 @@ const mockGroups: Trip[] = [
     genderPreference: 'any',
     targetAgeGroup: 'any',
     targetTravelerType: 'family',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: 'groupNew2',
+    title: 'Manali Mountain Adventure',
+    destination: 'Manali, Himachal Pradesh, India',
+    startLocation: 'Chandigarh, India',
+    startDate: new Date('2025-05-10'),
+    endDate: new Date('2025-05-17'),
+    description: 'Experience the breathtaking beauty of Manali. Trek through lush valleys, witness snow-capped peaks, and enjoy thrilling adventure sports like paragliding and rafting.',
+    imageUrls: ['https://saishishirtours.in/wp-content/uploads/2024/10/Best-Places-to-Visit-in-Shimla-Manali.webp'],
+    dataAiHint: 'manali mountains',
+    maxGroupSize: 10,
+    currentMemberCount: 1,
+    budget: '$400 - $700',
+    categories: ['Mountains', 'Adventure', 'Hill Stations', 'Nature'],
+    createdById: 'user_creatorNew2',
+    smokingPolicy: 'outside_only',
+    alcoholPolicy: 'socially',
+    genderPreference: 'any',
+    targetAgeGroup: '18-35',
+    targetTravelerType: 'adventure',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -165,6 +211,7 @@ export default function GroupsPage() {
     tempGroups = tempGroups.filter(group => group.maxGroupSize >= filters.groupSize[0] && group.maxGroupSize <= filters.groupSize[1]);
 
 
+    // Simulate API call delay
     setTimeout(() => {
       setFilteredGroups(tempGroups);
       setIsLoading(false);
@@ -172,9 +219,9 @@ export default function GroupsPage() {
      
   }, [filters, router]);
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = useCallback((newFilters: any) => {
     setFilters(prevFilters => ({ ...prevFilters, ...newFilters }));
-  };
+  }, []);
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
