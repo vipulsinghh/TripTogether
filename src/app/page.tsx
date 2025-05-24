@@ -31,7 +31,6 @@ export default function LandingPage() {
             alt="Travel collage"
             layout="fill"
             objectFit="cover"
-            className="opacity-50"
             data-ai-hint="travel collage"
           />
         </div>

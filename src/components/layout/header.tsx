@@ -22,7 +22,7 @@ export default function Header() {
       setProfilePreferencesSet(preferencesSetStatus);
 
       // Profile completion enforcement
-      const mainAppRoutes = ['/discover', '/groups', '/create-trip', '/chat']; // Note: /chat might need specific handling if it has sub-routes like /chat/[groupId]
+      const mainAppRoutes = ['/discover', '/groups', '/create-trip', '/chat']; 
       if (signedInStatus && !preferencesSetStatus && mainAppRoutes.some(route => pathname.startsWith(route)) && pathname !== '/profile') {
         router.replace('/profile');
       }
@@ -34,7 +34,6 @@ export default function Header() {
     updateAuthState(); 
   }, [pathname]); 
 
-  // Effect to update isSignedIn when localStorage changes (e.g. from another tab) or on window focus
   useEffect(() => {
     const handleStorageChange = () => {
       updateAuthState();
@@ -93,10 +92,10 @@ export default function Header() {
           {canAccessMainApp && (
             <>
               <Button variant="ghost" asChild>
-                <Link href="/groups"><Users className="md:hidden h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Groups</span></Link>
+                <Link href="/groups"><Users className="md:mr-2 h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Groups</span></Link>
               </Button>
               <Button variant="ghost" asChild>
-                <Link href="/create-trip"><Edit className="md:hidden h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Create Trip</span></Link>
+                <Link href="/create-trip"><Edit className="md:mr-2 h-4 w-4"/><span className="hidden md:inline font-bold text-gradient">Create Trip</span></Link>
               </Button>
               <Button variant="ghost" asChild size="icon" title="Messages">
                 <Link href="/messages">
