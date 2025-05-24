@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { User } from '@/types'; // Import User type
+import { useToast } from "@/hooks/use-toast";
 
 // Mock user data - extended with new preference fields
 const mockUser: User = {
@@ -34,9 +35,6 @@ const mockUser: User = {
 };
 
 // Helper to display preference labels
-const getLabel = (options: {value: string, label: string}[], value?: string) => {
-  return options.find(opt => opt.value === value)?.label || value || 'Not set';
-}
 import { 
   userSmokingPreferenceOptions, 
   userAlcoholPreferenceOptions, 
@@ -45,15 +43,20 @@ import {
   travelerTypeOptions 
 } from "@/types";
 
+const getLabel = (options: {value: string, label: string}[], value?: string) => {
+  return options.find(opt => opt.value === value)?.label || value || 'Not set';
+}
+
+
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const [user, setUser] = useState<User>(mockUser); // Use User type
-  const [profilePreferencesSet, setProfilePreferencesSet] = useState(true); // Assume true initially, check localStorage
+  const [user, setUser] = useState<User>(mockUser); 
+  const [profilePreferencesSet, setProfilePreferencesSet] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     // In a real app, fetch user data from API
-    // For now, we use mockUser
     setUser(mockUser);
 
     if (typeof window !== 'undefined') {
@@ -61,26 +64,32 @@ export default function ProfilePage() {
         setProfilePreferencesSet(preferencesSet);
         if (!preferencesSet) {
             setIsEditing(true); // Force edit mode if preferences not set
+        } else {
+            setIsEditing(false); // Default to view mode if preferences are set
         }
     }
   }, []);
 
   const handleSaveSuccess = () => {
     setIsEditing(false);
-    setProfilePreferencesSet(true); // Mark as set
+    setProfilePreferencesSet(true); // Mark as set in component state
+    // userProfilePreferencesSet in localStorage is handled by UserProfileForm
+    toast({
+      title: "Profile Updated!",
+      description: "Your changes have been saved successfully.",
+    });
     // Potentially refetch user data here if it was a real API call
-    router.push('/discover'); // Navigate to discover after successful save
   };
 
   return (
     <div className="max-w-4xl mx-auto">
-      {!profilePreferencesSet && !isEditing && (
+      {!profilePreferencesSet && isEditing && ( // Show alert only during initial setup
          <Alert variant="destructive" className="mb-6">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Complete Your Profile!</AlertTitle>
           <AlertDescription>
             Please complete your profile preferences to get the best travel recommendations and connect with groups.
-            <Button variant="link" className="p-0 ml-1 h-auto" onClick={() => setIsEditing(true)}>Click here to edit.</Button>
+            Once saved, you can always edit it later.
           </AlertDescription>
         </Alert>
       )}
@@ -88,16 +97,23 @@ export default function ProfilePage() {
         <CardHeader className="bg-muted/30 p-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <Avatar className="h-32 w-32 border-4 border-background shadow-md">
-              <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="profile avatar" />
-              <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={user.avatarUrl} alt={user.name || "User"} data-ai-hint="profile avatar" />
+              <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             <div className="text-center md:text-left">
               <CardTitle className="text-4xl font-bold">{user.name}</CardTitle>
               <CardDescription className="text-lg text-muted-foreground">{user.email}</CardDescription>
-              <Button variant="outline" size="sm" className="mt-4" onClick={() => setIsEditing(!isEditing)}>
-                <Edit3 className="mr-2 h-4 w-4" />
-                {isEditing ? 'Cancel Edit' : 'Edit Profile'}
-              </Button>
+              {profilePreferencesSet && ( // Only show Edit/View button if profile was initially set
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-4" 
+                  onClick={() => setIsEditing(!isEditing)}
+                >
+                  <Edit3 className="mr-2 h-4 w-4" />
+                  {isEditing ? 'View Profile' : 'Edit Profile & Preferences'}
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>

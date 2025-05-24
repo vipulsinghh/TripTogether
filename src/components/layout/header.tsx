@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Plane, Compass, LogOut, UserCircle, Edit } from 'lucide-react';
+import { Plane, Compass, LogOut, UserCircle, Edit, MessageSquare, Bell } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -22,7 +22,8 @@ export default function Header() {
       setProfilePreferencesSet(preferencesSetStatus);
 
       // Profile completion enforcement
-      if (signedInStatus && !preferencesSetStatus && pathname !== '/profile' && pathname !== '/' && !pathname.startsWith('/auth')) {
+      const mainAppRoutes = ['/discover', '/groups', '/create-trip', '/chat'];
+      if (signedInStatus && !preferencesSetStatus && mainAppRoutes.some(route => pathname.startsWith(route)) && pathname !== '/profile') {
         router.replace('/profile');
       }
     }
@@ -30,10 +31,10 @@ export default function Header() {
 
   useEffect(() => {
     setIsClient(true);
-    updateAuthState(); // Initial check
-  }, [pathname, router]); // Re-check on pathname change to enforce redirection
+    updateAuthState(); 
+  }, [pathname, router]); // Removed router from dependency array for this specific effect to avoid potential loops, path change is enough.
 
-  // Effect to update isSignedIn when localStorage changes
+  // Effect to update isSignedIn when localStorage changes (e.g. from another tab) or on window focus
   useEffect(() => {
     const handleStorageChange = () => {
       updateAuthState();
@@ -46,13 +47,13 @@ export default function Header() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', handleStorageChange);
     };
-  }, []);
+  }, []); // Runs once on mount
 
 
   const handleSignOut = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('isUserSignedIn');
-      localStorage.removeItem('userProfilePreferencesSet'); // Clear this too
+      localStorage.removeItem('userProfilePreferencesSet'); 
     }
     setIsSignedIn(false);
     setProfilePreferencesSet(false);
@@ -92,16 +93,28 @@ export default function Header() {
           {canAccessMainApp && (
             <>
               <Button variant="ghost" asChild>
-                <Link href="/groups">Groups</Link>
+                <Link href="/groups"><span className="hidden md:inline">Groups</span><Users className="md:hidden h-4 w-4"/></Link>
               </Button>
               <Button variant="ghost" asChild>
-                <Link href="/create-trip">Create Trip</Link>
+                <Link href="/create-trip"><span className="hidden md:inline">Create Trip</span><Edit className="md:hidden h-4 w-4"/></Link>
+              </Button>
+              <Button variant="ghost" asChild size="icon" title="Messages">
+                <Link href="/messages">
+                  <MessageSquare />
+                  <span className="sr-only">Messages</span>
+                </Link>
+              </Button>
+              <Button variant="ghost" asChild size="icon" title="Notifications">
+                <Link href="/notifications">
+                  <Bell />
+                  <span className="sr-only">Notifications</span>
+                </Link>
               </Button>
             </>
           )}
           
           {isClient && !isSignedIn && (
-            <div className="hidden md:flex items-center gap-2">
+            <div className="flex items-center gap-2"> {/* md:flex removed to always show on larger screens */}
               <Button variant="outline" asChild>
                 <Link href="/auth/sign-in">Sign In</Link>
               </Button>
@@ -111,7 +124,7 @@ export default function Header() {
             </div>
           )}
            {isClient && isSignedIn && (
-            <Button variant="outline" onClick={handleSignOut} className="hidden md:flex">
+            <Button variant="outline" onClick={handleSignOut} className="flex"> {/* md:flex removed to always show this button when signed in */}
               <LogOut className="md:mr-2 h-4 w-4" />
               <span className="hidden md:inline">Sign Out</span>
             </Button>

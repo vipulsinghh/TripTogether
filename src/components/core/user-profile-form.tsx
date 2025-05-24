@@ -17,9 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+// Removed useToast from here as it's handled by the parent ProfilePage
 import { PlusCircle, Trash2, Save, UserCog, Cigarette, Wine, Users, Cake, CheckSquare } from 'lucide-react';
-import { useRouter } from "next/navigation";
+// Removed useRouter from here as navigation is handled by parent or onSubmit callback
 import { 
   userSmokingPreferenceOptions, 
   userAlcoholPreferenceOptions, 
@@ -50,8 +50,8 @@ interface UserProfileFormProps {
 }
 
 export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserProfileFormProps) {
-  const { toast } = useToast();
-  const router = useRouter();
+  // const { toast } = useToast(); // Toast handled by parent
+  // const router = useRouter(); // Navigation handled by parent or callback
   
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -88,16 +88,18 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
       localStorage.setItem('userProfilePreferencesSet', 'true');
     }
 
-    toast({
-      title: "Profile Updated!",
-      description: "Your travel profile has been successfully saved.",
-    });
+    // Toast is handled by parent (ProfilePage)
+    // toast({
+    //   title: "Profile Updated!",
+    //   description: "Your travel profile has been successfully saved.",
+    // });
 
     if (onSaveSuccess) {
       onSaveSuccess(); // Call the callback passed from parent
-    } else {
-      router.push('/discover'); // Default redirect if no callback
-    }
+    } 
+    // else {
+      // router.push('/discover'); // Default redirect removed, parent handles UI state
+    // }
   }
 
   return (
@@ -270,6 +272,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
+                   <FormMessage />
                 </FormItem>
               )}
             />
@@ -304,6 +307,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
+                   <FormMessage />
                 </FormItem>
               )}
             />
@@ -338,6 +342,7 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   )}
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -352,7 +357,6 @@ export default function UserProfileForm({ defaultValues, onSaveSuccess }: UserPr
             <PlusCircle className="mr-2 h-4 w-4" /> Add Preference
           </Button>
         </div>
-
 
         <Button type="submit" className="w-full md:w-auto bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-primary-foreground">
           <Save className="mr-2 h-4 w-4" /> Save Profile
