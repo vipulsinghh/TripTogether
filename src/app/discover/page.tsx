@@ -21,8 +21,8 @@ const initialTrips: Trip[] = [
     startDate: new Date('2024-10-10'),
     endDate: new Date('2024-10-17'),
     description: 'Explore volcanoes, surf, and find your zen in beautiful Bali. We will visit waterfalls, rice paddies and enjoy local cuisine.',
-    imageUrls: ['https://images.unsplash.com/photo-1435783099294-283725c37230?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'],
-    dataAiHint: 'bali temple sea',
+    imageUrls: ['https://plus.unsplash.com/premium_photo-1661955632358-85564b2810b2?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YmFsaSUyMGlzbGFuZHxlbnwwfHwwfHx8MA%3D%3D'],
+    dataAiHint: 'bali island',
     maxGroupSize: 8,
     currentMemberCount: 5,
     budget: '$1000 - $1500',
@@ -45,7 +45,7 @@ const initialTrips: Trip[] = [
     startDate: new Date('2024-11-05'),
     endDate: new Date('2024-11-12'),
     description: 'Experience the vibrant culture, futuristic tech, and ancient temples of Tokyo. A mix of modern marvels and serene shrines.',
-    imageUrls: ['https://placehold.co/600x400.png'],
+    imageUrls: ['https://www.hdwallpapers.in/thumbs/2020/man_made_tokyo_hd-t2.jpg'],
     dataAiHint: 'tokyo skyline',
     maxGroupSize: 6,
     currentMemberCount: 3,
@@ -69,7 +69,7 @@ const initialTrips: Trip[] = [
     startDate: new Date('2024-12-01'),
     endDate: new Date('2024-12-07'),
     description: 'Indulge in art, cuisine, and romance in the City of Lights. Visit museums, enjoy cafes, and stroll along the Seine.',
-    imageUrls: ['https://placehold.co/600x400.png'],
+    imageUrls: ['https://cdn.bhdw.net/im/eiffel-tower-paris-wallpaper-80283_w635.webp'],
     dataAiHint: 'paris eiffel tower',
     maxGroupSize: 4,
     currentMemberCount: 2,
@@ -93,7 +93,7 @@ const initialTrips: Trip[] = [
     startDate: new Date('2025-01-10'),
     endDate: new Date('2025-01-20'),
     description: 'Challenging trek through the stunning Andes mountains. Experience breathtaking views and ancient Incan trails.',
-    imageUrls: ['https://placehold.co/600x400.png'],
+    imageUrls: ['https://w0.peakpx.com/wallpaper/138/445/HD-wallpaper-fitzroy-national-park-argentina-mountain-summit-snow-argentina-national-park-fitz-roy-andes.jpg'],
     dataAiHint: 'andes mountains peru',
     maxGroupSize: 10,
     currentMemberCount: 4,
@@ -112,7 +112,7 @@ const initialTrips: Trip[] = [
     startDate: new Date('2025-02-15'),
     endDate: new Date('2025-02-22'),
     description: 'Camel rides, stargazing, and Berber culture in the vast Sahara desert. Sleep under the stars in a desert camp.',
-    imageUrls: ['https://placehold.co/600x400.png'],
+    imageUrls: ['https://backiee.com/static/wallpapers/1000x563/274546.jpg'],
     dataAiHint: 'sahara desert morocco',
     maxGroupSize: 12,
     currentMemberCount: 6,
@@ -131,7 +131,7 @@ const initialTrips: Trip[] = [
     startDate: new Date('2025-03-10'),
     endDate: new Date('2025-03-17'),
     description: 'Experience the breathtaking beauty of Kashmir, from serene Dal Lake houseboats to majestic Himalayan foothills. Enjoy local culture and cuisine.',
-    imageUrls: ['https://placehold.co/600x400.png'],
+    imageUrls: ['https://d2rdhxfof4qmbb.cloudfront.net/wp-content/uploads/20190312112932/Shikara-boats-on-Dal-lake-Srinagar.jpg'],
     dataAiHint: 'kashmir valley',
     maxGroupSize: 8,
     currentMemberCount: 2,
@@ -180,12 +180,9 @@ export default function DiscoverPage() {
       const preferencesSet = localStorage.getItem('userProfilePreferencesSet') === 'true';
       setProfilePreferencesSet(preferencesSet);
       
-      // Redirect to login if not signed in - this page requires auth
       const signedIn = localStorage.getItem('isUserSignedIn') === 'true';
       if (!signedIn) {
         setTrips([]); 
-        // In a real app, you might redirect here:
-        // router.replace('/auth/sign-in');
         return;
       }
     }
@@ -226,7 +223,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="flex flex-col space-y-6 md:space-y-8">
-      {profilePreferencesSet === false && ( // Check explicitly for false
+      {profilePreferencesSet === false && (
         <Alert variant="default" className="border-primary bg-primary/5">
           <UserCog className="h-5 w-5 text-primary" />
           <AlertTitle className="font-semibold text-primary">Complete Your Profile!</AlertTitle>
