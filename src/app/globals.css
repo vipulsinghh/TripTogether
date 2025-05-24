@@ -46,33 +46,33 @@ body {
   }
 
   .dark {
-    --background: 227 30% 12%; /* Dark blue-gray */
-    --foreground: 220 20% 92%; /* Light grayish blue */
+    --background: 227 30% 10%; /* Slightly darker blue-gray */
+    --foreground: 220 20% 90%; /* Slightly dimmed light grayish blue */
 
-    --card: 227 30% 18%;
-    --card-foreground: 220 20% 92%;
+    --card: 227 30% 16%; /* Darker card background */
+    --card-foreground: 220 20% 90%; /* Consistent with main foreground */
 
-    --popover: 227 30% 18%;
-    --popover-foreground: 220 20% 92%;
+    --popover: 227 30% 16%; /* Darker popover background */
+    --popover-foreground: 220 20% 90%; /* Consistent with main foreground */
 
-    --primary: 227 65% 62%; /* Lighter blue for dark mode primary, adjusted for vibrancy */
-    --primary-foreground: 227 30% 10%; /* Darker text on light blue */
+    --primary: 227 65% 60%; /* Slightly darker primary for harmony */
+    --primary-foreground: 227 30% 12%; /* Adjusted for contrast on new primary */
 
-    --secondary: 227 25% 22%;
-    --secondary-foreground: 220 20% 92%;
+    --secondary: 227 25% 20%; /* Darker secondary elements */
+    --secondary-foreground: 220 20% 88%; /* Dimmed secondary text */
 
-    --muted: 227 25% 22%;
-    --muted-foreground: 220 15% 70%;
+    --muted: 227 25% 20%; /* Darker muted background */
+    --muted-foreground: 220 15% 68%; /* Adjusted muted text */
 
-    --accent: 40 98% 60%; /* Golden Yellow, slightly brighter for dark mode */
-    --accent-foreground: 227 60% 15%; /* Darker for contrast on yellow */
+    --accent: 40 95% 58%; /* Slightly desaturated and darker accent */
+    --accent-foreground: 227 60% 18%; /* Adjusted for contrast on new accent */
     
     --destructive: 0 60% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 227 25% 28%;
-    --input: 227 25% 28%;
-    --ring: 227 60% 68%;
+    --border: 227 25% 26%; /* Darker border */
+    --input: 227 25% 26%; /* Darker input background */
+    --ring: 227 60% 65%; /* Slightly darker ring color */
 
     /* Custom gradient variables for dark mode if needed */
     --gradient-start: #1a2a6c;
@@ -93,3 +93,4 @@ body {
 .text-gradient {
   @apply bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-middle)] to-[var(--gradient-end)] text-transparent bg-clip-text;
 }
+
