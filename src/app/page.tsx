@@ -27,7 +27,7 @@ export default function LandingPage() {
       <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="absolute inset-0">
           <Image
-            src="https://i.pinimg.com/736x/ca/34/b5/ca34b5169be4a4f5bbfd0ff02fb24bbe.jpg"
+            src="https://cdn.pixabay.com/photo/2018/10/01/11/45/landscape-3715977_1280.jpg"
             alt="Beautiful travel landscape"
             layout="fill"
             objectFit="cover"
