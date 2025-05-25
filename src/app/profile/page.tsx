@@ -71,7 +71,7 @@ export default function ProfilePage() {
         if (storedProfileDataString) {
           try {
             const rawParsedData = JSON.parse(storedProfileDataString) as ProfileFormValues; // Contains all form fields including name
-
+            
             const ensureStringArray = (arr: any): string[] => {
               if (!Array.isArray(arr)) return [];
               return arr
@@ -84,7 +84,7 @@ export default function ProfilePage() {
                 .filter((s: string | null): s is string => s !== null && s !== '');
             };
             
-            otherProfileDetails = {
+ otherProfileDetails = {
                 bio: rawParsedData.bio,
                 smokingPolicy: rawParsedData.smokingPolicy as User['smokingPolicy'],
                 alcoholPolicy: rawParsedData.alcoholPolicy as User['alcoholPolicy'],
@@ -93,7 +93,7 @@ export default function ProfilePage() {
                 preferredTravelerType: rawParsedData.preferredTravelerType as User['preferredTravelerType'],
                 interests: ensureStringArray(rawParsedData.interests),
                 travelHistory: ensureStringArray(rawParsedData.travelHistory),
-                preferences: ensureStringArray(rawParsedData.preferences),
+ preferences: ensureStringArray(rawParsedData.preferences),
                 // Explicitly DO NOT load name/email from here to give precedence to direct localStorage items
             };
 
