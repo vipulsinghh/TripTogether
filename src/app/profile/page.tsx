@@ -42,7 +42,7 @@ import {
   genderPreferenceOptions, 
   ageGroupOptions, 
   travelerTypeOptions,
-  type ProfileFormValues
+  type ProfileFormValues // Assuming ProfileFormValues is also exported from types or defined locally
 } from "@/types";
 
 const getLabel = (options: {value: string, label: string}[], value?: string) => {
@@ -65,47 +65,49 @@ export default function ProfilePage() {
         const storedName = localStorage.getItem('userName');
         const storedEmail = localStorage.getItem('userEmail');
         
-        let initialUserUpdate: Partial<User> = {
-          name: storedName || mockUser.name, // Fallback to mockUser if not in localStorage
-          email: storedEmail || mockUser.email,
-        };
-
+        let otherProfileDetails: Partial<User> = {};
         const storedProfileDataString = localStorage.getItem('userProfileData');
+
         if (storedProfileDataString) {
           try {
-            const rawParsedData = JSON.parse(storedProfileDataString);
+            const rawParsedData = JSON.parse(storedProfileDataString) as ProfileFormValues; // Contains all form fields including name
 
             const ensureStringArray = (arr: any): string[] => {
               if (!Array.isArray(arr)) return [];
               return arr
                 .map((item: any) => {
                   if (typeof item === 'string') return item.trim();
+                  // Handle items that might be { value: "string" } from CreatableSelect or similar
                   if (typeof item === 'object' && item !== null && typeof item.value === 'string') return item.value.trim();
                   return null; 
                 })
                 .filter((s: string | null): s is string => s !== null && s !== '');
             };
             
-            const loadedProfileSpecifics: Partial<User> = {
+            otherProfileDetails = {
                 bio: rawParsedData.bio,
-                smokingPolicy: rawParsedData.smokingPolicy,
-                alcoholPolicy: rawParsedData.alcoholPolicy,
-                preferredGenderMix: rawParsedData.preferredGenderMix,
-                preferredAgeGroup: rawParsedData.preferredAgeGroup,
-                preferredTravelerType: rawParsedData.preferredTravelerType,
+                smokingPolicy: rawParsedData.smokingPolicy as User['smokingPolicy'],
+                alcoholPolicy: rawParsedData.alcoholPolicy as User['alcoholPolicy'],
+                preferredGenderMix: rawParsedData.preferredGenderMix as User['preferredGenderMix'],
+                preferredAgeGroup: rawParsedData.preferredAgeGroup as User['preferredAgeGroup'],
+                preferredTravelerType: rawParsedData.preferredTravelerType as User['preferredTravelerType'],
                 interests: ensureStringArray(rawParsedData.interests),
                 travelHistory: ensureStringArray(rawParsedData.travelHistory),
                 preferences: ensureStringArray(rawParsedData.preferences),
+                // Explicitly DO NOT load name/email from here to give precedence to direct localStorage items
             };
-            
-            initialUserUpdate = { ...initialUserUpdate, ...loadedProfileSpecifics };
 
           } catch (e) {
             console.error("Failed to parse or format profile data from localStorage", e);
           }
         }
         
-        setUser(prevUser => ({ ...prevUser, ...initialUserUpdate }));
+        setUser(prevUser => ({
+             ...prevUser, // Start with mockUser defaults (like id, avatarUrl, createdAt etc.)
+             ...otherProfileDetails, // Apply other details from full profile storage
+             name: storedName !== null ? storedName : prevUser.name, // Prioritize userName from localStorage
+             email: storedEmail !== null ? storedEmail : prevUser.email, // Prioritize userEmail from localStorage
+        }));
         
         if (!preferencesSet) {
             setIsEditing(true); // Force edit mode if preferences not set
@@ -136,7 +138,8 @@ export default function ProfilePage() {
     
     setUser(prevUser => ({ ...prevUser, ...processedDataForState }));
 
-    if (updatedFormData.name && typeof window !== 'undefined') {
+    // Ensure userName in localStorage is updated if changed in form
+    if (updatedFormData.name !== null && typeof window !== 'undefined') { // Check for null, empty string is valid
       localStorage.setItem('userName', updatedFormData.name);
     }
     
@@ -228,9 +231,9 @@ export default function ProfilePage() {
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <Heart className="mr-2 h-5 w-5" /> Interests
                 </h3>
-                {user.interests && user.interests.length > 0 && user.interests.some(i => i.trim() !== '') ? (
+                {user.interests && user.interests.length > 0 && user.interests.some(i => typeof i === 'string' && i.trim() !== '') ? (
                   <div className="flex flex-wrap gap-2">
-                    {user.interests.filter(i => i.trim() !== '').map((interest) => (
+                    {user.interests.filter(i => typeof i === 'string' && i.trim() !== '').map((interest) => (
                       <Badge key={interest} variant="secondary" className="text-sm px-3 py-1">{interest}</Badge>
                     ))}
                   </div>
@@ -241,9 +244,9 @@ export default function ProfilePage() {
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <Briefcase className="mr-2 h-5 w-5" /> Travel History
                 </h3>
-                {user.travelHistory && user.travelHistory.length > 0 && user.travelHistory.some(th => th.trim() !== '') ? (
+                {user.travelHistory && user.travelHistory.length > 0 && user.travelHistory.some(th => typeof th === 'string' && th.trim() !== '') ? (
                   <ul className="list-disc list-inside space-y-1 text-foreground/90">
-                    {user.travelHistory.filter(th => th.trim() !== '').map((trip) => (
+                    {user.travelHistory.filter(th => typeof th === 'string' && th.trim() !== '').map((trip) => (
                       <li key={trip}>{trip}</li>
                     ))}
                   </ul>
@@ -254,9 +257,9 @@ export default function ProfilePage() {
                 <h3 className="text-lg sm:text-xl font-semibold mb-2 flex items-center text-primary border-b pb-2">
                   <MapPin className="mr-2 h-5 w-5" /> Other General Preferences
                 </h3>
-                 {user.preferences && user.preferences.length > 0 && user.preferences.some(p => p.trim() !== '') ? (
+                 {user.preferences && user.preferences.length > 0 && user.preferences.some(p => typeof p === 'string' && p.trim() !== '') ? (
                   <div className="flex flex-wrap gap-2">
-                    {user.preferences.filter(p => p.trim() !== '').map((preference) => (
+                    {user.preferences.filter(p => typeof p === 'string' && p.trim() !== '').map((preference) => (
                       <Badge key={preference} variant="outline" className="text-sm px-3 py-1">{preference}</Badge>
                     ))}
                   </div>
@@ -279,6 +282,5 @@ export default function ProfilePage() {
     </div>
   );
 }
-
 
     
