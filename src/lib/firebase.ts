@@ -18,6 +18,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
+console.log("Firebase client-side initialized"); // Add this log
 
 // Get Firebase Auth instance
 export const auth = getAuth(app);

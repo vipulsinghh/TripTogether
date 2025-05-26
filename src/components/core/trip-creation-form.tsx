@@ -83,15 +83,23 @@ const tripFormSchema = z.object({
 
 type TripFormValues = z.infer<typeof tripFormSchema>;
 
-export default function TripCreationForm() {
+// Define the props for the TripCreationForm component
+interface TripCreationFormProps {
+  onSubmit: (data: TripFormValues) => Promise<void>; // Define the expected type for the onSubmit prop
+}
+
+export default function TripCreationForm({ onSubmit: handleFormSubmit }: TripCreationFormProps) {
   const { toast } = useToast();
+  // Import useFirebase to get the current user
+  // const { auth } = useFirebase(); // Assuming you have a useFirebase hook
+
   const [selectedFileNames, setSelectedFileNames] = useState<string[]>([]);
 
   const form = useForm<TripFormValues>({
     resolver: zodResolver(tripFormSchema),
     defaultValues: {
       title: "",
-      destination: "",
+      destination: "", 
       startLocation: "",
       description: "",
       categories: [],
@@ -106,15 +114,65 @@ export default function TripCreationForm() {
   });
 
   async function onSubmit(data: TripFormValues) {
+    // console.log("Trip Creation Data:", data); // Keep for debugging if needed
+    // if (data.imageFiles) { // Keep for debugging if needed
+    //   console.log("Selected Images:", Array.from(data.imageFiles).map(file => file.name)); // Keep for debugging if needed
+    // }
+
+    // Get the current user's ID. Replace with actual logic if useFirebase hook is structured differently
+    // const userId = auth.currentUser?.uid;
+    const userId = "dummy-user-id"; // Replace with actual user ID retrieval
+
+    // Prepare data to send to the API
+    const tripDataForApi = {
+      ...data,
+      userId: userId, // Include the user ID
+      startDate: data.startDate.toISOString(), // Convert Date to ISO string
+      endDate: data.endDate.toISOString(), // Convert Date to ISO string
+      // Image files might require special handling for API upload (e.g., FormData)
+      // For now, we'll omit imageFiles from the JSON body and handle them separately or in the API route
+      imageFiles: undefined // Exclude FileList from JSON body
+    };
+
+    try {
+      const response = await fetch('/api/trips', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tripDataForApi),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create trip');
+      }
+
+      const result = await response.json();
+
+      toast({
+        title: "Trip Created!",
+        description: `${data.title} has been successfully created.`,
+      });
+      form.reset();
+      setSelectedFileNames([]);
+    } catch (error: any) {
+      console.error("Error creating trip:", error);
+      toast({
+        title: "Error Creating Trip",
+        description: error.message || "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  // Original onSubmit function (commented out)
+  
+  async function onSubmitOriginal(data: TripFormValues) {
     console.log("Trip Creation Data:", data);
     if (data.imageFiles) {
       console.log("Selected Images:", Array.from(data.imageFiles).map(file => file.name));
     }
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast({
-      title: "Trip Created!",
-      description: `${data.title} has been successfully created.`,
-    });
     form.reset();
     setSelectedFileNames([]);
   }
@@ -130,6 +188,7 @@ export default function TripCreationForm() {
       setSelectedFileNames([]);
     }
   };
+
 
   return (
     <Form {...form}>
